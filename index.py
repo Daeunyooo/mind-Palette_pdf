@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, make_response, render_template_string, session, send_file
-from PIL import Image, ImageDraw, ImageFont
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 from io import BytesIO
 import requests
 import base64
@@ -187,11 +188,35 @@ def generate_pdf(responses):
 @app.route('/download-pdf', methods=['GET'])
 def download_pdf():
     try:
-        pdf_buffer = generate_pdf(session.get('responses', []))
+        responses = session.get('responses', [])
+        pdf_buffer = generate_text_pdf(responses)
         return send_file(pdf_buffer, as_attachment=True, download_name='user_responses.pdf', mimetype='application/pdf')
     except Exception as e:
         print(f"Error sending PDF: {e}")
         return jsonify({'error': 'Failed to download the PDF'}), 500
+
+def generate_text_pdf(responses):
+    pdf_buffer = BytesIO()
+    c = canvas.Canvas(pdf_buffer, pagesize=letter)
+    width, height = letter
+    y_position = height - 40  # Start position from the top of the page
+
+    c.setFont("Helvetica", 12)
+    c.drawString(40, y_position, "User Responses:")
+    y_position -= 20
+
+    for i, response in enumerate(responses, start=1):
+        response_text = f"Response {i}: {response}"
+        c.drawString(40, y_position, response_text)
+        y_position -= 20
+        if y_position < 40:  # If space runs out on the page, create a new one
+            c.showPage()
+            c.setFont("Helvetica", 12)
+            y_position = height - 40
+
+    c.save()
+    pdf_buffer.seek(0)
+    return pdf_buffer
 
 @app.route('/api/question', methods=['POST'])
 def api_question():
