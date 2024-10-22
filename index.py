@@ -213,12 +213,10 @@ def api_question():
         progress = (session['question_number'] - 1) / 6 * 100
         return jsonify({'question': question_text, 'progress': progress, 'restart': False})
     else:
-        # Generate the PDF at the end of the session
-        pdf_path = generate_pdf(session['responses'])
-        session.clear()
-        session['history'] = []
-        session['question_number'] = 1
-        return jsonify({'pdf_url': '/download-pdf', 'progress': 0, 'restart': True})
+        # Generate the PDF and provide the link for download
+        pdf_buffer = generate_pdf(session['responses'])
+        session.clear()  # Clear session data
+        return jsonify({'pdf_url': '/download-pdf', 'progress': 100, 'restart': True})
         
 
 @app.route('/', methods=['GET'])
@@ -395,20 +393,19 @@ def home():
                     })
                     .then(response => response.json())
                     .then(data => {
-                        document.getElementById('question').textContent = data.question;
-                        document.getElementById('response').value = '';
-                        document.querySelector('progress').value = data.progress; // Update based on the backend calculation
+                        if (data.pdf_url) {
+                            // Display the download link and set the href attribute
+                            endSessionAndDownloadPDF(data.pdf_url);
+                        } else {
+                            document.getElementById('question').textContent = data.question;
+                            document.getElementById('response').value = '';
+                            document.querySelector('progress').value = data.progress;
+                        }
                     })
                     .catch(error => console.error('Error:', error));
                     return false;
                 }
 
-
-                function updateProgressBar() {
-                    var currentQuestionNumber = session['question_number'] - 1;  // Assumes this variable is updated correctly from server
-                    var progressPercent = currentQuestionNumber * 20;  // Assuming there are 5 questions
-                    document.querySelector('progress').value = progressPercent;
-                }
 
 
 
@@ -665,7 +662,8 @@ def home():
                     
                     <script>
                         function endSessionAndDownloadPDF(pdf_url) {
-                            document.getElementById('download-link').href = pdf_url;
+                            const downloadLink = document.getElementById('download-link');
+                            downloadLink.href = pdf_url;
                             document.getElementById('download-section').style.display = 'block';
                         }
                         
