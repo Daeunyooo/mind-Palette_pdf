@@ -6,6 +6,8 @@ import requests
 import base64
 import openai
 import os
+import pdfkit
+
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('OPENAI_API_KEY')
@@ -196,27 +198,15 @@ def download_pdf():
         return jsonify({'error': 'Failed to download the PDF'}), 500
 
 def generate_text_pdf(responses):
-    pdf_buffer = BytesIO()
-    c = canvas.Canvas(pdf_buffer, pagesize=letter)
-    width, height = letter
-    y_position = height - 40  # Start position from the top of the page
-
-    c.setFont("Helvetica", 12)
-    c.drawString(40, y_position, "User Responses:")
-    y_position -= 20
-
+    html_content = "<h1>User Responses:</h1>"
     for i, response in enumerate(responses, start=1):
-        response_text = f"Response {i}: {response}"
-        c.drawString(40, y_position, response_text)
-        y_position -= 20
-        if y_position < 40:  # If space runs out on the page, create a new one
-            c.showPage()
-            c.setFont("Helvetica", 12)
-            y_position = height - 40
+        html_content += f"<p>Response {i}: {response}</p>"
 
-    c.save()
+    pdf_buffer = BytesIO()
+    pdfkit.from_string(html_content, pdf_buffer)
     pdf_buffer.seek(0)
     return pdf_buffer
+    
 
 @app.route('/api/question', methods=['POST'])
 def api_question():
