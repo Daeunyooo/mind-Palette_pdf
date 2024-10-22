@@ -1,4 +1,7 @@
 from flask import Flask, request, jsonify, make_response, render_template_string, session
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from flask import send_file
 import requests
 import base64
 import openai
@@ -162,7 +165,30 @@ def generate_art_therapy_question(api_key, question_number, session_history):
     else:
         return "Do you want to restart the session?"
 
+def generate_pdf(responses):
+    pdf_path = 'user_responses.pdf'
+    c = canvas.Canvas(pdf_path, pagesize=letter)
+    width, height = letter
 
+    c.setFont("Helvetica", 12)
+    c.drawString(100, height - 50, "User Responses:")
+    
+    y_position = height - 80
+    for i, response in enumerate(responses, start=1):
+        c.drawString(100, y_position, f"Response {i}: {response}")
+        y_position -= 20
+        if y_position < 50:  # Create a new page if we're running out of space
+            c.showPage()
+            c.setFont("Helvetica", 12)
+            y_position = height - 50
+
+    c.save()
+    return pdf_path
+
+@app.route('/download-pdf', methods=['GET'])
+def download_pdf():
+    pdf_path = 'user_responses.pdf'
+    return send_file(pdf_path, as_attachment=True)
 
 
 @app.route('/api/question', methods=['POST'])
@@ -170,8 +196,11 @@ def api_question():
     data = request.json
     user_response = data.get('response', '')
     session['history'] = session.get('history', [])
+    session['responses'] = session.get('responses', [])
     session['question_number'] = session.get('question_number', 1)
+    
     session['history'].append(('You', user_response))
+    session['responses'].append(user_response)  # Store the response
 
     if session['question_number'] <= 6:
         question_text = generate_art_therapy_question(
@@ -182,14 +211,12 @@ def api_question():
         progress = (session['question_number'] - 1) / 6 * 100
         return jsonify({'question': question_text, 'progress': progress, 'restart': False})
     else:
+        # Generate the PDF at the end of the session
+        pdf_path = generate_pdf(session['responses'])
         session.clear()
         session['history'] = []
         session['question_number'] = 1
-        first_question_text = generate_art_therapy_question(
-            app.secret_key, session['question_number'], session['history']
-        )
-        session['history'].append(('Therapist', first_question_text))
-        return jsonify({'question': first_question_text, 'progress': 0, 'restart': True})
+        return jsonify({'pdf_url': pdf_path, 'progress': 0, 'restart': True})
         
 
 @app.route('/', methods=['GET'])
@@ -630,6 +657,30 @@ def home():
                     <div id="reappraisalText" style="padding: 20px; font-size: 18px; line-height: 1.6; color: black;">
                         <!-- Reappraisal text will appear here -->
                     </div>
+                    <div id="download-section" style="display: none;">
+                        <a id="download-link" href="#" download="user_responses.pdf">Download Your Responses</a>
+                    </div>
+                    
+                    <script>
+                        function endSessionAndDownloadPDF(pdf_url) {
+                            document.getElementById('download-link').href = pdf_url;
+                            document.getElementById('download-section').style.display = 'block';
+                        }
+                    
+                        // Call this function after receiving the pdf_url from the server
+                        fetch('/api/question', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({'response': 'Some final response'})
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.pdf_url) {
+                                endSessionAndDownloadPDF(data.pdf_url);
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    </script>
                 </div>
 
 
