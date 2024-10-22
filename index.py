@@ -204,7 +204,7 @@ def api_question():
     session['history'].append(('You', user_response))
     session['responses'].append(user_response)  # Store the response
 
-    if session['question_number'] <= 6:
+    if session['question_number'] < 6:
         question_text = generate_art_therapy_question(
             app.secret_key, session['question_number'], session['history']
         )
@@ -213,9 +213,9 @@ def api_question():
         progress = (session['question_number'] - 1) / 6 * 100
         return jsonify({'question': question_text, 'progress': progress, 'restart': False})
     else:
-        # Generate the PDF and provide the link for download
+        # Generate the PDF at the end of the session
         pdf_buffer = generate_pdf(session['responses'])
-        session.clear()  # Clear session data
+        session.clear()  # Clear session data for a new session
         return jsonify({'pdf_url': '/download-pdf', 'progress': 100, 'restart': True})
         
 
@@ -384,7 +384,7 @@ def home():
 
 
             <script>
-                function sendResponse() {
+               function sendResponse() {
                     const response = document.getElementById('response').value;
                     fetch('/api/question', {
                         method: 'POST',
@@ -404,6 +404,12 @@ def home():
                     })
                     .catch(error => console.error('Error:', error));
                     return false;
+                }
+                
+                function endSessionAndDownloadPDF(pdf_url) {
+                    const downloadLink = document.getElementById('download-link');
+                    downloadLink.href = pdf_url;
+                    document.getElementById('download-section').style.display = 'block';
                 }
 
 
@@ -661,11 +667,6 @@ def home():
                     </div>
                     
                     <script>
-                        function endSessionAndDownloadPDF(pdf_url) {
-                            const downloadLink = document.getElementById('download-link');
-                            downloadLink.href = pdf_url;
-                            document.getElementById('download-section').style.display = 'block';
-                        }
                         
                         // Update the fetch call in the JavaScript to handle the final response:
                         fetch('/api/question', {
