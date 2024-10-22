@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify, make_response, render_template_string, session, send_file
-from fpdf import FPDF
+from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
 import requests
 import base64
 import openai
-from io import BytesIO
-from PIL import Image
 import os
 
 app = Flask(__name__)
@@ -164,29 +163,35 @@ def generate_art_therapy_question(api_key, question_number, session_history):
         return "Do you want to restart the session?"
 
 def generate_pdf(responses):
-    pdf_path = 'user_responses.pdf'
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-
-    pdf.cell(200, 10, txt="User Responses", ln=True, align='C')
+    pdf_buffer = BytesIO()
+    
+    # Create a simple image to act as a "PDF" with user responses
+    img = Image.new('RGB', (800, 1000), color=(255, 255, 255))
+    draw = ImageDraw.Draw(img)
+    
+    # Load a basic font for drawing text
+    font = ImageFont.load_default()
+    
+    y_position = 10
+    draw.text((10, y_position), "User Responses:", fill=(0, 0, 0), font=font)
+    y_position += 30
 
     for i, response in enumerate(responses, start=1):
-        pdf.multi_cell(0, 10, txt=f"Response {i}: {response}", border=0, align='L')
+        draw.text((10, y_position), f"Response {i}: {response}", fill=(0, 0, 0), font=font)
+        y_position += 20
 
-    pdf.output(pdf_path)
-    return pdf_path
+    img.save(pdf_buffer, format="PDF")
+    pdf_buffer.seek(0)
+    return pdf_buffer
 
 @app.route('/download-pdf', methods=['GET'])
 def download_pdf():
-    pdf_path = 'user_responses.pdf'
     try:
-        return send_file(pdf_path, as_attachment=True)
+        pdf_buffer = generate_pdf(session.get('responses', []))
+        return send_file(pdf_buffer, as_attachment=True, download_name='user_responses.pdf', mimetype='application/pdf')
     except Exception as e:
         print(f"Error sending PDF: {e}")
         return jsonify({'error': 'Failed to download the PDF'}), 500
-
 
 @app.route('/api/question', methods=['POST'])
 def api_question():
