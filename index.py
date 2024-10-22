@@ -188,7 +188,11 @@ def generate_pdf(responses):
 @app.route('/download-pdf', methods=['GET'])
 def download_pdf():
     pdf_path = 'user_responses.pdf'
-    return send_file(pdf_path, as_attachment=True)
+    try:
+        return send_file(pdf_path, as_attachment=True)
+    except Exception as e:
+        print(f"Error sending PDF: {e}")
+        return jsonify({'error': 'Failed to download the PDF'}), 500
 
 
 @app.route('/api/question', methods=['POST'])
@@ -216,7 +220,7 @@ def api_question():
         session.clear()
         session['history'] = []
         session['question_number'] = 1
-        return jsonify({'pdf_url': pdf_path, 'progress': 0, 'restart': True})
+        return jsonify({'pdf_url': '/download-pdf', 'progress': 0, 'restart': True})
         
 
 @app.route('/', methods=['GET'])
@@ -666,8 +670,8 @@ def home():
                             document.getElementById('download-link').href = pdf_url;
                             document.getElementById('download-section').style.display = 'block';
                         }
-                    
-                        // Call this function after receiving the pdf_url from the server
+                        
+                        // Update the fetch call in the JavaScript to handle the final response:
                         fetch('/api/question', {
                             method: 'POST',
                             headers: {'Content-Type': 'application/json'},
@@ -680,6 +684,7 @@ def home():
                             }
                         })
                         .catch(error => console.error('Error:', error));
+
                     </script>
                 </div>
 
