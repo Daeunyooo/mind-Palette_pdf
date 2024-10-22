@@ -1,7 +1,5 @@
-from flask import Flask, request, jsonify, make_response, render_template_string, session
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from flask import send_file
+from flask import Flask, request, jsonify, make_response, render_template_string, session, send_file
+from fpdf import FPDF
 import requests
 import base64
 import openai
@@ -167,22 +165,17 @@ def generate_art_therapy_question(api_key, question_number, session_history):
 
 def generate_pdf(responses):
     pdf_path = 'user_responses.pdf'
-    c = canvas.Canvas(pdf_path, pagesize=letter)
-    width, height = letter
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
 
-    c.setFont("Helvetica", 12)
-    c.drawString(100, height - 50, "User Responses:")
-    
-    y_position = height - 80
+    pdf.cell(200, 10, txt="User Responses", ln=True, align='C')
+
     for i, response in enumerate(responses, start=1):
-        c.drawString(100, y_position, f"Response {i}: {response}")
-        y_position -= 20
-        if y_position < 50:  # Create a new page if we're running out of space
-            c.showPage()
-            c.setFont("Helvetica", 12)
-            y_position = height - 50
+        pdf.multi_cell(0, 10, txt=f"Response {i}: {response}", border=0, align='L')
 
-    c.save()
+    pdf.output(pdf_path)
     return pdf_path
 
 @app.route('/download-pdf', methods=['GET'])
