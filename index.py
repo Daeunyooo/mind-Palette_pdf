@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, make_response, render_template_string
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from io import BytesIO
+from fpdf import FPDF
 import requests
 import base64
 import openai
@@ -198,12 +199,16 @@ def download_pdf():
         return jsonify({'error': 'Failed to download the PDF'}), 500
 
 def generate_text_pdf(responses):
-    html_content = "<h1>User Responses:</h1>"
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt="User Responses:", ln=True)
+
     for i, response in enumerate(responses, start=1):
-        html_content += f"<p>Response {i}: {response}</p>"
+        pdf.multi_cell(0, 10, f"Response {i}: {response}")
 
     pdf_buffer = BytesIO()
-    pdfkit.from_string(html_content, pdf_buffer)
+    pdf.output(pdf_buffer)
     pdf_buffer.seek(0)
     return pdf_buffer
     
