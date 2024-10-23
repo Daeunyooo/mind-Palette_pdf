@@ -401,7 +401,7 @@ def home():
                 
                         if (data.progress === 100) {
                             // Show the reflection area when the last question is reached
-                            document.getElementById('reflectionContainer').style.display = 'block';
+                            //document.getElementById('reflectionContainer').style.display = 'block';
                             document.getElementById('reflectionContainer').innerHTML = `<div class="responses">${data.responses}</div>`;
                         }
                     })
