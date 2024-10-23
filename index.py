@@ -397,10 +397,12 @@ def home():
                     .then(data => {
                         document.getElementById('question').textContent = data.question;
                         document.querySelector('progress').value = data.progress;
+                        document.getElementById('response').value = ''; // Clear the response box
+                
                         if (data.progress === 100) {
+                            // Show the reflection area when the last question is reached
                             document.getElementById('reflectionContainer').style.display = 'block';
-                            document.getElementById('reflectionResponses').innerHTML = data.responses;
-                            document.getElementById('reflectionButton').style.display = 'block';
+                            document.getElementById('reflectionContainer').innerHTML = `<div class="responses">${data.responses}</div>`;
                         }
                     })
                     .catch(error => console.error('Error:', error));
@@ -666,6 +668,9 @@ def home():
                     </div>
                     <div id="reappraisalText" style="padding: 20px; font-size: 18px; line-height: 1.6; color: black;">
                         <!-- Reappraisal text will appear here -->
+                    </div>
+                    <div id="reflectionContainer" style="display: none; margin-top: 20px; background-color: #f0f8ff; padding: 10px; border-radius: 5px;">
+                        <!-- Reflections will be added dynamically here -->
                     </div>
                 </div>
 
