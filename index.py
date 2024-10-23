@@ -371,23 +371,20 @@ def home():
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.responses.length > 0) {
-                            // Display all responses in the response box if responses are returned
-                            document.getElementById('response').value = data.responses;
-                        } else {
-                            document.getElementById('response').value = '';
-                        }
                         document.getElementById('question').textContent = data.question;
-                        document.querySelector('progress').value = data.progress; // Update the progress bar
+                        document.getElementById('response').value = '';
+                        document.querySelector('progress').value = data.progress;
+                
+                        if (data.progress === 100) {
+                            // Show the reflection button when the last question is reached
+                            document.getElementById('reflectionButton').style.display = 'block';
+                        } else {
+                            // Hide the reflection button if not on the last question
+                            document.getElementById('reflectionButton').style.display = 'none';
+                        }
                     })
                     .catch(error => console.error('Error:', error));
                     return false;
-                }
-
-                function updateProgressBar() {
-                    var currentQuestionNumber = session['question_number'] - 1;  // Assumes this variable is updated correctly from server
-                    var progressPercent = currentQuestionNumber * 20;  // Assuming there are 5 questions
-                    document.querySelector('progress').value = progressPercent;
                 }
 
 
@@ -453,6 +450,12 @@ def home():
                     ctx.beginPath();  // Clear any existing drawing paths
                 }
 
+                function viewReflection() {
+                    window.location.href = '/reflection';
+                }
+
+
+
             </script>
         </head>
         <body>
@@ -464,6 +467,7 @@ def home():
                 <form onsubmit="return sendResponse();">
                     <input type="text" id="response" autocomplete="off" style="width: 430px; margin-top: 15px;" value="" placeholder="Enter your response here..." />
                     <input type="submit" value="Respond" class="button-style" />
+                    <button id="reflectionButton" class="button-style" style="display: none;" onclick="viewReflection()">Reflection</button>
                 </form>
                 <div class="canvas-container ">
                     <canvas id="drawingCanvas" width="500" height="330"></canvas>
@@ -645,6 +649,52 @@ def home():
         </body>
     </html>
     """, latest_question=latest_question, progress_value=progress_value)
+
+@app.route('/reflection', methods=['GET'])
+def reflection():
+    # Retrieve the stored responses from the session
+    responses = session.get('responses', [])
+    # Format responses as a list of strings for display
+    formatted_responses = "<br>".join([f"Response {i + 1}: {response}" for i, response in enumerate(responses)])
+    return render_template_string("""
+    <html>
+        <head>
+            <title>Your Reflections</title>
+            <style>
+                body {
+                    font-family: 'Helvetica', sans-serif;
+                    padding: 20px;
+                    background-color: #f0f8ff;
+                }
+                h1 {
+                    color: #333;
+                }
+                .responses {
+                    margin-top: 20px;
+                    line-height: 1.6;
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 5px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                .button-style {
+                    margin-top: 20px;
+                    padding: 10px 20px;
+                    background-color: #0057e7;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Thank you for reflecting!</h1>
+            <div class="responses">{{ responses|safe }}</div>
+            <button class="button-style" onclick="window.location.href='/'">Restart Session</button>
+        </body>
+    </html>
+    """, responses=formatted_responses)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
