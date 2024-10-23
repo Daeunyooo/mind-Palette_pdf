@@ -184,17 +184,25 @@ def api_question():
         session['history'].append(('Therapist', question_text))
         session['question_number'] += 1
         progress = (session['question_number'] - 1) / 6 * 100
-        return jsonify({'question': question_text, 'progress': progress, 'responses': [], 'restart': False})
+        return jsonify({
+            'question': question_text,
+            'progress': progress,
+            'responses': session['responses'],
+            'restart': False
+        })
     else:
         # Send all responses back when it's the last question
         all_responses = "\n".join([f"Response {i+1}: {response}" for i, response in enumerate(session['responses'])])
+        # Include final advice or feedback if needed
+        final_advice = generate_reappraisal_text(session['responses'][-1])
         session.clear()
         return jsonify({
             'question': 'Thank you for participating! Here are all your responses:',
             'progress': 100,
-            'responses': all_responses,
+            'responses': all_responses + f"\nFinal Advice: {final_advice}",
             'restart': True
         })
+
         
 
 @app.route('/', methods=['GET'])
