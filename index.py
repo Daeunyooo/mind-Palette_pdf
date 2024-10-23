@@ -280,14 +280,14 @@ def home():
                         background-color: #0057e7;
                         border-radius: 3px;
                     }
-                    .responses {
-                    margin-top: 20px;
-                    line-height: 1.6;
-                    background-color: white;
-                    padding: 20px;
-                    border-radius: 5px;
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                }
+                    #.responses {
+                    #margin-top: 20px;
+                    #line-height: 1.6;
+                    #background-color: white;
+                    #padding: 20px;
+                    #border-radius: 5px;
+                    #box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                #}
                 #reflectionContainer {
                     display: none;
                     background-color: #f0f8ff;
