@@ -673,7 +673,7 @@ def home():
                     <input type="button" 
                            value="View Reflections" 
                            class="button-style" 
-                           style="background-color: #ECECEC; color: black;" 
+                           style="background-color: #f3f4f6; color: black;" 
                            onclick="location.href='/reflection'" />
                     <div id="reflectionContainer" style="display: none; margin-top: 20px; padding: 10px; border-radius: 10px; background-color: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
                         <!-- Reflections will be added dynamically here -->
