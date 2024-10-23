@@ -670,6 +670,7 @@ def home():
                     <div id="reappraisalText" style="padding: 20px; font-size: 18px; line-height: 1.6; color: black;">
                         <!-- Reappraisal text will appear here -->
                     </div>
+                    <input type="button" value="View Reflections" class="button-style" onclick="location.href='/reflection'" />
                     <div id="reflectionContainer" style="display: none; margin-top: 20px; padding: 10px; border-radius: 10px; background-color: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
                         <!-- Reflections will be added dynamically here -->
                     </div>
@@ -704,6 +705,15 @@ def reflection():
                     padding: 20px;
                     border-radius: 5px;
                     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                .button-style {
+                    color: white;
+                    background-color: black;
+                    padding: 5px 10px;
+                    cursor: pointer;
+                    border: none;
+                    margin-left: 10px;
+                    border-radius: 4px; 
                 }
             </style>
         </head>
