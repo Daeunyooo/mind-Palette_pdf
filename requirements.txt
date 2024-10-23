@@ -1,5 +1,4 @@
 Flask==3.0.2
 openai==0.28.0
 pillow==10.3.0
-fpdf2==2.5.6  # Replace with the latest stable version if needed
-reportlab==3.6.13
+fpdf2==2.5.6  # Use FPDF2 instead of ReportLab
