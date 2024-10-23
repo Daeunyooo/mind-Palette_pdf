@@ -670,7 +670,11 @@ def home():
                     <div id="reappraisalText" style="padding: 20px; font-size: 18px; line-height: 1.6; color: black;">
                         <!-- Reappraisal text will appear here -->
                     </div>
-                    <input type="button" value="View Reflections" class="button-style" onclick="location.href='/reflection'" />
+                    <input type="button" 
+                           value="View Reflections" 
+                           class="button-style" 
+                           style="background-color: #d3d3d3; padding-top: 10px;" 
+                           onclick="location.href='/reflection'" />
                     <div id="reflectionContainer" style="display: none; margin-top: 20px; padding: 10px; border-radius: 10px; background-color: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
                         <!-- Reflections will be added dynamically here -->
                     </div>
