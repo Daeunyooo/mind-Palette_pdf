@@ -1,14 +1,10 @@
-from flask import Flask, request, jsonify, make_response, render_template_string, session, send_file
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from fpdf import FPDF
-from io import BytesIO
+from flask import Flask, request, jsonify, make_response, render_template_string, session
 import requests
 import base64
 import openai
+from io import BytesIO
+from PIL import Image
 import os
-import pdfkit
-
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('OPENAI_API_KEY')
@@ -132,7 +128,6 @@ predefined_sentences = {
 }
 
 
-
 def generate_art_therapy_question(api_key, question_number, session_history):
     openai.api_key = api_key
     question_prompts = [
@@ -167,52 +162,8 @@ def generate_art_therapy_question(api_key, question_number, session_history):
     else:
         return "Do you want to restart the session?"
 
-def generate_pdf(responses):
-    pdf_buffer = BytesIO()
-    
-    # Create a simple image to act as a "PDF" with user responses
-    img = Image.new('RGB', (800, 1000), color=(255, 255, 255))
-    draw = ImageDraw.Draw(img)
-    
-    # Load a basic font for drawing text
-    font = ImageFont.load_default()
-    
-    y_position = 10
-    draw.text((10, y_position), "User Responses:", fill=(0, 0, 0), font=font)
-    y_position += 30
 
-    for i, response in enumerate(responses, start=1):
-        draw.text((10, y_position), f"Response {i}: {response}", fill=(0, 0, 0), font=font)
-        y_position += 20
 
-    img.save(pdf_buffer, format="PDF")
-    pdf_buffer.seek(0)
-    return pdf_buffer
-
-@app.route('/download-pdf', methods=['GET'])
-def download_pdf():
-    try:
-        responses = session.get('responses', [])
-        pdf_buffer = generate_text_pdf(responses)
-        return send_file(pdf_buffer, as_attachment=True, download_name='user_responses.pdf', mimetype='application/pdf')
-    except Exception as e:
-        print(f"Error sending PDF: {e}")
-        return jsonify({'error': 'Failed to download the PDF'}), 500
-
-def generate_text_pdf(responses):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt="User Responses:", ln=True)
-
-    for i, response in enumerate(responses, start=1):
-        pdf.multi_cell(0, 10, f"Response {i}: {response}")
-
-    pdf_buffer = BytesIO()
-    pdf.output(pdf_buffer)
-    pdf_buffer.seek(0)
-    return pdf_buffer
-    
 
 @app.route('/api/question', methods=['POST'])
 def api_question():
@@ -221,9 +172,10 @@ def api_question():
     session['history'] = session.get('history', [])
     session['responses'] = session.get('responses', [])
     session['question_number'] = session.get('question_number', 1)
-    
+
+    # Store the user's response
     session['history'].append(('You', user_response))
-    session['responses'].append(user_response)  # Store the response
+    session['responses'].append(user_response)
 
     if session['question_number'] < 6:
         question_text = generate_art_therapy_question(
@@ -232,12 +184,17 @@ def api_question():
         session['history'].append(('Therapist', question_text))
         session['question_number'] += 1
         progress = (session['question_number'] - 1) / 6 * 100
-        return jsonify({'question': question_text, 'progress': progress, 'restart': False})
+        return jsonify({'question': question_text, 'progress': progress, 'responses': [], 'restart': False})
     else:
-        # Generate the PDF at the end of the session
-        pdf_buffer = generate_pdf(session['responses'])
-        session.clear()  # Clear session data for a new session
-        return jsonify({'pdf_url': '/download-pdf', 'progress': 100, 'restart': True})
+        # Send all responses back when it's the last question
+        all_responses = "\n".join([f"Response {i+1}: {response}" for i, response in enumerate(session['responses'])])
+        session.clear()
+        return jsonify({
+            'question': 'Thank you for participating! Here are all your responses:',
+            'progress': 100,
+            'responses': all_responses,
+            'restart': True
+        })
         
 
 @app.route('/', methods=['GET'])
@@ -405,7 +362,7 @@ def home():
 
 
             <script>
-               function sendResponse() {
+                function sendResponse() {
                     const response = document.getElementById('response').value;
                     fetch('/api/question', {
                         method: 'POST',
@@ -414,25 +371,24 @@ def home():
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.pdf_url) {
-                            // Display the download link and set the href attribute
-                            endSessionAndDownloadPDF(data.pdf_url);
+                        if (data.responses.length > 0) {
+                            // Display all responses in the response box if responses are returned
+                            document.getElementById('response').value = data.responses;
                         } else {
-                            document.getElementById('question').textContent = data.question;
                             document.getElementById('response').value = '';
-                            document.querySelector('progress').value = data.progress;
                         }
+                        document.getElementById('question').textContent = data.question;
+                        document.querySelector('progress').value = data.progress; // Update the progress bar
                     })
                     .catch(error => console.error('Error:', error));
                     return false;
                 }
-                
-                function endSessionAndDownloadPDF(pdf_url) {
-                    const downloadLink = document.getElementById('download-link');
-                    downloadLink.href = pdf_url;
-                    document.getElementById('download-section').style.display = 'block';
-                }
 
+                function updateProgressBar() {
+                    var currentQuestionNumber = session['question_number'] - 1;  // Assumes this variable is updated correctly from server
+                    var progressPercent = currentQuestionNumber * 20;  // Assuming there are 5 questions
+                    document.querySelector('progress').value = progressPercent;
+                }
 
 
 
@@ -683,27 +639,6 @@ def home():
                     <div id="reappraisalText" style="padding: 20px; font-size: 18px; line-height: 1.6; color: black;">
                         <!-- Reappraisal text will appear here -->
                     </div>
-                    <div id="download-section" style="display: none;">
-                        <a id="download-link" href="#" download="user_responses.pdf">Download Your Responses</a>
-                    </div>
-                    
-                    <script>
-                        
-                        // Update the fetch call in the JavaScript to handle the final response:
-                        fetch('/api/question', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({'response': 'Some final response'})
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.pdf_url) {
-                                endSessionAndDownloadPDF(data.pdf_url);
-                            }
-                        })
-                        .catch(error => console.error('Error:', error));
-
-                    </script>
                 </div>
 
 
