@@ -289,11 +289,11 @@ def home():
                     #box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                 #}
                 #reflectionContainer {
-                    display: none;
-                    background-color: #f0f8ff;
-                    padding: 10px;
-                    border-radius: 5px;
-                }
+                #    display: none;
+                #    background-color: #f0f8ff;
+                #    padding: 10px;
+                #    border-radius: 5px;
+                #}
                 .active-tool {
                     background-color: black;
                     color: white;
@@ -399,11 +399,11 @@ def home():
                         document.querySelector('progress').value = data.progress;
                         document.getElementById('response').value = ''; // Clear the response box
                 
-                        if (data.progress === 100) {
+                        #if (data.progress === 100) {
                             // Show the reflection area when the last question is reached
-                            document.getElementById('reflectionContainer').style.display = 'block';
-                            document.getElementById('reflectionContainer').innerHTML = `<div class="responses">${data.responses}</div>`;
-                        }
+                            #document.getElementById('reflectionContainer').style.display = 'block';
+                            #document.getElementById('reflectionContainer').innerHTML = `<div class="responses">${data.responses}</div>`;
+                        #}
                     })
                     .catch(error => console.error('Error:', error));
                     return false;
@@ -671,7 +671,7 @@ def home():
                         <!-- Reappraisal text will appear here -->
                     </div>
                     <input type="button" value="View Reflections" class="button-style" onclick="location.href='/reflection'" />
-                    <div id="reflectionContainer" style="display: none; margin-top: 20px; padding: 10px; border-radius: 10px; background-color: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                    #<div id="reflectionContainer" style="display: none; margin-top: 20px; padding: 10px; border-radius: 10px; background-color: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
                         <!-- Reflections will be added dynamically here -->
                     </div>
                 </div>
