@@ -382,21 +382,31 @@ def home():
                         document.getElementById('question').textContent = data.question;
                         document.getElementById('response').value = '';
                         document.querySelector('progress').value = data.progress;
-            
-                        // Add the response to the reflection area
-                        addResponseToReflection(response);
-            
+                
                         if (data.progress === 100) {
-                            // Show the reflection button when the last question is reached
+                            // Show the reflection area when the last question is reached
+                            showReflectionArea(data.responses);
                             document.getElementById('reflectionButton').style.display = 'block';
                         } else {
-                            // Hide the reflection button if not on the last question
+                            // Hide the reflection area if not on the last question
                             document.getElementById('reflectionButton').style.display = 'none';
                         }
                     })
                     .catch(error => console.error('Error:', error));
                     return false;
                 }
+                
+                function showReflectionArea(responses) {
+                    const reflectionContainer = document.getElementById('reflectionContainer');
+                    reflectionContainer.innerHTML = '';  // Clear any previous reflections
+                
+                    const responseList = document.createElement('div');
+                    responseList.innerHTML = responses.split('\n').map((resp, index) => `<p>Response ${index + 1}: ${resp}</p>`).join('');
+                    
+                    reflectionContainer.appendChild(responseList);
+                    reflectionContainer.style.display = 'block';  // Make the reflection area visible
+                }
+
 
                 function addResponseToReflection(response) {
                     const reflectionContainer = document.getElementById('reflectionContainer');
@@ -656,7 +666,6 @@ def home():
                         <input type="text" id="description" autocomplete="off" style="width: 400px; padding: 5px; margin-top: 10px;" placeholder="Describe your drawing..." />
                         <input type="submit" value="Generate" class="button-style" />
                     </form>
-                    <!-- Loading indicator placed right below the form -->
                     <div id="loading" style="display: none; text-align: center;">
                         <div class="spinner"></div>
                         <p>Loading...</p>
@@ -667,13 +676,14 @@ def home():
                     <div id="reappraisalText" style="padding: 20px; font-size: 18px; line-height: 1.6; color: black;">
                         <!-- Reappraisal text will appear here -->
                     </div>
-                
-                    <!-- Reflection area where user responses will be displayed -->
-                    <div id="reflectionContainer" style="margin-top: 20px; background-color: #f0f8ff; padding: 10px; border-radius: 5px;">
+                    
+                    <!-- Reflection area (hidden initially) -->
+                    <div id="reflectionContainer" style="display: none; margin-top: 20px; background-color: #f0f8ff; padding: 10px; border-radius: 5px;">
                         <h2>Your Reflections</h2>
                         <!-- Responses will be added here dynamically -->
                     </div>
                 </div>
+
         </body>
     </html>
     """, latest_question=latest_question, progress_value=progress_value)
