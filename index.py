@@ -197,7 +197,7 @@ def api_question():
         })
         
 
-app.route('/', methods=['GET'])
+@app.route('/', methods=['GET'])
 def home():
     session['history'] = session.get('history', [])
     session['question_number'] = session.get('question_number', 1)
