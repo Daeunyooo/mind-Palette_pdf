@@ -66,7 +66,6 @@ def api_process_drawing():
         print(f"Error processing drawing: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-
 def generate_prompt(description, colors=None):
     if colors:
         color_description = ', '.join(colors)
@@ -99,7 +98,6 @@ def generate_reappraisal_text(description):
         print(f"Error generating reappraisal text: {str(e)}")
         return "Could not generate reappraisal text."
 
-
 def call_dalle_api(prompt, n=2):
     api_key = app.secret_key
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
@@ -120,13 +118,11 @@ def call_dalle_api(prompt, n=2):
         print(f"Error from OpenAI API: {e}")
         return []
 
-
 predefined_sentences = {
     4: "Let's draw. Please use 'Visual Metaphor' on the right.",
     5: "Let's draw. Please use 'Visual Metaphor' on the right.",
     6: "Thank you for participating in the session. You can restart the session if you want to explore more."
 }
-
 
 def generate_art_therapy_question(api_key, question_number, session_history):
     openai.api_key = api_key
@@ -136,7 +132,7 @@ def generate_art_therapy_question(api_key, question_number, session_history):
         "Based on the previous responses, generate a short question that explores the context, such as asking what triggered this emotion or describing the situation or thought that led to these feelings. Users are kids, so please use easy and friendly expressions.",
         "Based on the previous responses, generate a short question that asks the user to describe and visualize their emotion as an 'abstract shape or symbol' to create their own metaphor for their mind. Users are kids, so please use easy and friendly expressions, and provide some metaphors or examples.",
         "Based on the previous responses, generate a short question that asks the user to describe and visualize their emotions as a 'texture' to create their own metaphor for their mind. Users are kids, so please use easy and friendly expressions, and provide some metaphors or examples.",
-        "Based on the previous responses, provide personalized cognitive reappraisal advice to help think about the situation that user described in the previous response in a more positive way. Or, if user's previous response was already positive, please assist user to think about the good things they might learn from this experience. Please incorporating a playful and engaging approach consistent with CBT theory. Make sure the advice is directly relevant to the emotions and situations described by the child, using examples or activities that are fun and easy for kids to understand. Also, make this less than three sentences."
+        "Based on the previous responses, provide personalized cognitive reappraisal advice to help think about the situation that user described in the previous response in a more positive way. Or, if user's previous response was already positive, please assist user to think about the good things they might learn from this experience. Please incorporate a playful and engaging approach consistent with CBT theory. Make sure the advice is directly relevant to the emotions and situations described by the child, using examples or activities that are fun and easy for kids to understand. Also, make this less than three sentences."
     ]
     
     user_responses = " ".join([resp for who, resp in session_history if who == 'You'])
@@ -161,9 +157,6 @@ def generate_art_therapy_question(api_key, question_number, session_history):
         return full_question_text
     else:
         return "Do you want to restart the session?"
-
-
-
 
 @app.route('/api/question', methods=['POST'])
 def api_question():
@@ -193,7 +186,6 @@ def api_question():
     else:
         # Send all responses back when it's the last question
         all_responses = "\n".join([f"Response {i+1}: {response}" for i, response in enumerate(session['responses'])])
-        # Include final advice or feedback if needed
         final_advice = generate_reappraisal_text(session['responses'][-1])
         session.clear()
         return jsonify({
@@ -202,7 +194,6 @@ def api_question():
             'responses': all_responses + f"\nFinal Advice: {final_advice}",
             'restart': True
         })
-
 
 @app.route('/', methods=['GET'])
 def home():
@@ -240,10 +231,6 @@ def home():
                     margin: 0 20px;
                     height: auto;
                 }
-                .active-tool {
-                    background-color: black;
-                    color: white;
-                }
                 .button-style {
                     color: white;
                     background-color: black;
@@ -254,22 +241,20 @@ def home():
                     border-radius: 4px; 
                 }
                 .helper-text {
-                    font-size: 18px; /* Set font size to 18px */
-                    line-height: 1.6; /* Adjust line height for better readability */
-                    color: black; /* Ensure the text is in black color */
+                    font-size: 18px;
+                    line-height: 1.6;
+                    color: black;
                 }
                 #question {
-                    font-size: 18px; /* Increase the font size for better readability */
-                    line-height: 1.6; /* Adjust line height to add more space between lines */
-                    margin-bottom: 20px; /* Additional margin below the text for spacing */
+                    font-size: 18px;
+                    line-height: 1.6;
+                    margin-bottom: 20px;
                     color: black; 
                 }
-                
                 progress {
                     width: 430px;
                     height: 10px;
                     margin-top: 10px;
-                    color: #0057e7;
                     background-color: #eee;
                     border-radius: 3px;
                 }
@@ -281,70 +266,47 @@ def home():
                     background-color: #0057e7;
                     border-radius: 3px;
                 }
-
-                img {
-                    width: 256px;
-                    height: 256px;
-                    margin: 10px;
+                .responses {
+                    margin-top: 20px;
+                    line-height: 1.6;
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 5px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                 }
-                input[type="text"] {
-                    width: 600px;
-                    height: 40px;
-                    font-size: 18px;
+                #reflectionContainer {
+                    display: none;
+                    background-color: #f0f8ff;
                     padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
+                    border-radius: 5px;
                 }
-                .canvas-container {
-                    display: flex;
-                    align-items: start;
-                    margin-bottom: 10px;
-                    margin-top: 30px; 
-                }
-                canvas {
-                    background-color: #f3f4f6;
-                    border: 2px solid #cccccc;
-                    border-radius: 4px;
-                    cursor: crosshair;
-                }
-                .brush {
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 50%;
-                    cursor: pointer;
-                    display: inline-block;
-                    margin: 5px;
-                }
-                .tool-button {
-                    background-color: white;
-                    border: 1.5px solid black;
-                    color: black;
-                    padding: 4px 9px;
-                    cursor: pointer;
-                    margin-left: 13px;
-                    border-radius: 4px;
-                }
-                .spinner {
-                    display: inline-block;
-                    vertical-align: middle;
-                    border: 4px solid rgba(0,0,0,.1);
-                    border-radius: 50%;
-                    border-left-color: #09f;
-                    animation: spin 1s ease infinite;
-                    width: 20px;
-                    height: 20px;
-                }
-                #loading p {
-                    display: inline-block;
-                    vertical-align: middle;
-                    margin: 0;
-                    padding-left: 10px;
-                }
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
+                .active-tool {
+                    background-color: black;
+                    color: white;
                 }
             </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="left">
+                    <h1>Mind Palette for kids!</h1>
+                    <div id="question">{{ latest_question }}</div>
+                    <progress value="{{ progress_value }}" max="100"></progress>
+                    <form onsubmit="return sendResponse();">
+                        <input type="text" id="response" autocomplete="off" style="width: 430px; margin-top: 15px;" value="" placeholder="Enter your response here..." />
+                        <input type="submit" value="Respond" class="button-style" />
+                        <button id="reflectionButton" class="button-style" style="display: none;" onclick="viewReflection()">Reflection</button>
+                    </form>
+                    <div id="reflectionContainer">
+                        <h2>Your Reflections</h2>
+                        <div id="reflectionResponses"></div>
+                    </div>
+                </div>
+                <div class="right">
+                    <h1>Visual Metaphor</h1>
+                    <div id="reappraisalText"></div>
+                </div>
+            </div>
             <script>
                 function sendResponse() {
                     const response = document.getElementById('response').value;
@@ -356,63 +318,21 @@ def home():
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('question').textContent = data.question;
-                        document.getElementById('response').value = '';
                         document.querySelector('progress').value = data.progress;
-                
                         if (data.progress === 100) {
-                            showReflectionArea(data.responses);
+                            document.getElementById('reflectionContainer').style.display = 'block';
+                            document.getElementById('reflectionResponses').innerHTML = data.responses;
                             document.getElementById('reflectionButton').style.display = 'block';
-                        } else {
-                            document.getElementById('reflectionButton').style.display = 'none';
                         }
                     })
                     .catch(error => console.error('Error:', error));
                     return false;
                 }
-                
-                function showReflectionArea(responses) {
-                    const reflectionContainer = document.getElementById('reflectionContainer');
-                    reflectionContainer.innerHTML = '';  // Clear any previous reflections
-                
-                    const responseList = document.createElement('div');
-                    responseList.innerHTML = responses.split('\n').map((resp, index) => `<p>${resp}</p>`).join('');
-                    reflectionContainer.appendChild(responseList);
-                    reflectionContainer.style.display = 'block';
+
+                function viewReflection() {
+                    document.getElementById('reflectionContainer').scrollIntoView({ behavior: 'smooth' });
                 }
             </script>
-        </head>
-        <body>
-            <div class="container">
-                <div class="left">
-                    <h1>Mind Palette for kids!</h1>
-                    <div id="question">{{ latest_question }}</div>
-                    <progress value="{{ progress_value }}" max="100"></progress>
-                    <form onsubmit="return sendResponse();">
-                        <input type="text" id="response" autocomplete="off" placeholder="Enter your response here..." />
-                        <input type="submit" value="Respond" class="button-style" />
-                        <button id="reflectionButton" class="button-style" style="display: none;" onclick="viewReflection()">Reflection</button>
-                    </form>
-                    <div class="canvas-container">
-                        <canvas id="drawingCanvas" width="500" height="330"></canvas>
-                    </div>
-                </div>
-                <div class="divider"></div>
-                <div class="right">
-                    <h1>Visual Metaphor</h1>
-                    <form onsubmit="return generateImage(event);">
-                        <label for="description" class="helper-text">I'm here to help you express your emotions. Please describe what you drew on the canvas!</label>
-                        <input type="text" id="description" autocomplete="off" placeholder="Describe your drawing..." />
-                        <input type="submit" value="Generate" class="button-style" />
-                    </form>
-                    <div id="loading" style="display: none; text-align: center;">
-                        <div class="spinner"></div>
-                        <p>Loading...</p>
-                    </div>
-                    <div id="images"></div>
-                    <div id="reappraisalText" style="padding: 20px; font-size: 18px; line-height: 1.6;"></div>
-                    <div id="reflectionContainer" style="display: none; margin-top: 20px;"></div>
-                </div>
-            </div>
         </body>
     </html>
     """, latest_question=latest_question, progress_value=progress_value)
@@ -426,10 +346,22 @@ def reflection():
         <head>
             <title>Your Reflections</title>
             <style>
-                body { font-family: 'Helvetica', sans-serif; background-color: #f0f8ff; padding: 20px; }
-                h1 { color: #333; }
-                .responses { margin-top: 20px; background-color: #fff; padding: 20px; border-radius: 5px; }
-                .button-style { margin-top: 20px; background-color: #0057e7; color: white; padding: 10px; border-radius: 5px; cursor: pointer; }
+                body {
+                    font-family: 'Helvetica', sans-serif;
+                    padding: 20px;
+                    background-color: #f0f8ff;
+                }
+                h1 {
+                    color: #333;
+                }
+                .responses {
+                    margin-top: 20px;
+                    line-height: 1.6;
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 5px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
             </style>
         </head>
         <body>
@@ -442,3 +374,5 @@ def reflection():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+
+
