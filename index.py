@@ -722,9 +722,9 @@ def reflection():
             </style>
         </head>
         <body>
-            <h1>Thank you for reflecting!</h1>
+            <h1>Here is what your kids thought about today.</h1>
             <div class="responses">{{ responses|safe }}</div>
-            <button class="button-style" onclick="window.location.href='/'">Restart Session</button>
+            <button class="button-style" style="margin-top: 20px;" onclick="window.location.href='/'">Restart Session</button>
         </body>
     </html>
     """, responses=formatted_responses)
