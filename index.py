@@ -177,7 +177,7 @@ def api_question():
     session['history'].append(('You', user_response))
     session['responses'].append(user_response)
 
-    if session['question_number'] < 6:
+    if session['question_number'] =< 6:
         question_text = generate_art_therapy_question(
             app.secret_key, session['question_number'], session['history']
         )
@@ -196,7 +196,7 @@ def api_question():
         final_advice = generate_reappraisal_text(session['responses'][-1])
         session.clear()
         return jsonify({
-            'question': 'Thank you for participating! Here are all your responses:',
+            'question': 'Thank you for participating!',
             'progress': 100,
             'responses': all_responses + f"\nFinal Advice: {final_advice}",
             'restart': True
