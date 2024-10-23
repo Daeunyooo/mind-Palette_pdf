@@ -1,4 +1,7 @@
-from flask import Flask, request, jsonify, make_response, render_template_string, session
+There are several problems in this code:
+1. There is no record in reflection page, user's response for five questions are now showing.
+2. There are no advice for the last question, like code B.
+Please update code A: from flask import Flask, request, jsonify, make_response, render_template_string, session
 import requests
 import base64
 import openai
@@ -84,7 +87,6 @@ def generate_prompt(description, colors=None):
         )
     return prompt
 
-
 def generate_reappraisal_text(description):
     try:
         response = openai.Completion.create(
@@ -127,6 +129,7 @@ predefined_sentences = {
     5: "Let's draw. Please use 'Visual Metaphor' on the right.",
     6: "Thank you for participating in the session. You can restart the session if you want to explore more."
 }
+
 
 def generate_art_therapy_question(api_key, question_number, session_history):
     openai.api_key = api_key
@@ -172,6 +175,8 @@ def api_question():
     session['history'] = session.get('history', [])
     session['responses'] = session.get('responses', [])
     session['question_number'] = session.get('question_number', 1)
+
+    # Store the user's response
     session['history'].append(('You', user_response))
     session['responses'].append(user_response)
 
@@ -182,15 +187,13 @@ def api_question():
         session['history'].append(('Therapist', question_text))
         session['question_number'] += 1
         progress = (session['question_number'] - 1) / 6 * 100
-        return jsonify({'question': question_text, 'progress': progress, 'restart': False})
+        return jsonify({'question': question_text, 'progress': progress, 'responses': [], 'restart': False})
     else:
-        # Handle last question, generating advice based on the user's final response.
-        last_response = session['responses'][-1]
-        reappraisal_advice = generate_reappraisal_text(last_response)
-        all_responses = "<br>".join([f"Response {i+1}: {response}" for i, response in enumerate(session['responses'])])
+        # Send all responses back when it's the last question
+        all_responses = "\n".join([f"Response {i+1}: {response}" for i, response in enumerate(session['responses'])])
         session.clear()
         return jsonify({
-            'question': reappraisal_advice,
+            'question': 'Thank you for participating! Here are all your responses:',
             'progress': 100,
             'responses': all_responses,
             'restart': True
@@ -465,9 +468,9 @@ def home():
                 <div id="question">{{ latest_question }}</div>
                 <progress value="{{ progress_value }}" max="100"></progress>  <!-- Progress bar here -->
                 <form onsubmit="return sendResponse();">
-                    <input type="text" id="response" autocomplete="off" placeholder="Enter your response here..." />
-                    <input type="submit" value="Respond" />
-                    <button id="reflectionButton" onclick="viewReflection()">Reflection</button>
+                    <input type="text" id="response" autocomplete="off" style="width: 430px; margin-top: 15px;" value="" placeholder="Enter your response here..." />
+                    <input type="submit" value="Respond" class="button-style" />
+                    <button id="reflectionButton" class="button-style" style="display: none;" onclick="viewReflection()">Reflection</button>
                 </form>
                 <div class="canvas-container ">
                     <canvas id="drawingCanvas" width="500" height="330"></canvas>
@@ -652,23 +655,51 @@ def home():
 
 @app.route('/reflection', methods=['GET'])
 def reflection():
+    # Retrieve the stored responses from the session
     responses = session.get('responses', [])
-    formatted_responses = "<br>".join([f"Response {i+1}: {response}" for i, response in enumerate(responses)])
+    print(f"User responses: {responses}")  # Debugging statement to check responses in logs
+    # Format responses as a list of strings for display
+    formatted_responses = "<br>".join([f"Response {i + 1}: {response}" for i, response in enumerate(responses)])
     return render_template_string("""
     <html>
         <head>
             <title>Your Reflections</title>
             <style>
-                /* Add some styles */
+                body {
+                    font-family: 'Helvetica', sans-serif;
+                    padding: 20px;
+                    background-color: #f0f8ff;
+                }
+                h1 {
+                    color: #333;
+                }
+                .responses {
+                    margin-top: 20px;
+                    line-height: 1.6;
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 5px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                .button-style {
+                    margin-top: 20px;
+                    padding: 10px 20px;
+                    background-color: #0057e7;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
             </style>
         </head>
         <body>
-            <h1>Your Reflections</h1>
-            <div>{{ responses|safe }}</div>
-            <button onclick="window.location.href='/'">Restart Session</button>
+            <h1>Thank you for reflecting!</h1>
+            <div class="responses">{{ responses|safe }}</div>
+            <button class="button-style" onclick="window.location.href='/'">Restart Session</button>
         </body>
     </html>
     """, responses=formatted_responses)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+
