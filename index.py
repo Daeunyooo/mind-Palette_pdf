@@ -671,7 +671,6 @@ def home():
                         <!-- Reappraisal text will appear here -->
                     </div>
                     <input type="button" value="View Reflections" class="button-style" onclick="location.href='/reflection'" />
-                    <div id="reflectionContainer" style="display: none; margin-top: 20px; padding: 10px; border-radius: 10px; background-color: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
                         <!-- Reflections will be added dynamically here -->
                     </div>
                 </div>
