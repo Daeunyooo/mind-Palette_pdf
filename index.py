@@ -409,6 +409,7 @@ def home():
                     return false;
                 }
 
+
                 function viewReflection() {
                     document.getElementById('reflectionContainer').scrollIntoView({ behavior: 'smooth' });
                 }
