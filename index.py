@@ -177,7 +177,7 @@ def api_question():
     session['history'].append(('You', user_response))
     session['responses'].append(user_response)
 
-    if session['question_number'] =< 6:
+    if session['question_number'] <= 6:
         question_text = generate_art_therapy_question(
             app.secret_key, session['question_number'], session['history']
         )
