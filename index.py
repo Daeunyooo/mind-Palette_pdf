@@ -1,7 +1,4 @@
-There are several problems in this code:
-1. There is no record in reflection page, user's response for five questions are now showing.
-2. There are no advice for the last question, like code B.
-Please update code A: from flask import Flask, request, jsonify, make_response, render_template_string, session
+from flask import Flask, request, jsonify, make_response, render_template_string, session
 import requests
 import base64
 import openai
