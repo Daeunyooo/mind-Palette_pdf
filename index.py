@@ -132,6 +132,7 @@ predefined_sentences = {
 }
 
 
+
 def generate_art_therapy_question(api_key, question_number, session_history):
     openai.api_key = api_key
     question_prompts = [
