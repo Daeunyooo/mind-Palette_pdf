@@ -194,7 +194,9 @@ def api_question():
         # Send all responses back when it's the last question
         all_responses = "\n".join([f"Response {i+1}: {response}" for i, response in enumerate(session['responses'])])
         final_advice = generate_reappraisal_text(session['responses'][-1])
-        session.clear()
+        session.clear()  # Clear the session data
+        session['history'] = []  # Reinitialize the session history
+        session['question_number'] = 1  # Reset question number to 1
         return jsonify({
             'question': 'Thank you for participating!',
             'progress': 100,
@@ -205,8 +207,11 @@ def api_question():
 
 @app.route('/', methods=['GET'])
 def home():
-    session['history'] = session.get('history', [])
-    session['question_number'] = session.get('question_number', 1)
+    # Ensure session variables are initialized correctly
+    if 'history' not in session or 'question_number' not in session:
+        session['history'] = []
+        session['question_number'] = 1
+
     initial_question = generate_art_therapy_question(
         app.secret_key, session['question_number'], session['history']
     )
