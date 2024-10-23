@@ -67,7 +67,7 @@ def api_process_drawing():
         return jsonify({'error': str(e)}), 500
 
 
-ef generate_prompt(description, colors=None):
+def generate_prompt(description, colors=None):
     if colors:
         color_description = ', '.join(colors)
         prompt = (
