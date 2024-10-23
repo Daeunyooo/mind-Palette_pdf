@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify, make_response, render_template_string, session, send_file
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from io import BytesIO
 from fpdf import FPDF
+from io import BytesIO
 import requests
 import base64
 import openai
