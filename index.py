@@ -670,6 +670,9 @@ def home():
                     <div id="reappraisalText" style="padding: 20px; font-size: 18px; line-height: 1.6; color: black;">
                         <!-- Reappraisal text will appear here -->
                     </div>
+                    <div id="reflectionContainer" style="display: none; margin-top: 10px; padding: 10px; border-radius: 10px; background-color: white;">
+                        <!-- Reflections will be added dynamically here -->
+                    </div>
                 </div>
 
 
