@@ -196,7 +196,7 @@ def api_question():
         final_advice = generate_reappraisal_text(session['responses'][-1])
         session.clear()
         return jsonify({
-            'question': 'Thank you for participating!',
+            'question': 'Let's restart!',
             'progress': 100,
             'responses': all_responses + f"\nFinal Advice: {final_advice}",
             'restart': True
