@@ -203,7 +203,6 @@ def api_question():
             'restart': True
         })
 
-        
 
 @app.route('/', methods=['GET'])
 def home():
@@ -266,59 +265,47 @@ def home():
                     color: black; 
                 }
                 
-                    progress {
-                        width: 430px;  /* Set width to match the drawing canvas */
-                        height: 10px;
-                        margin-top: 10px;
-                        color: #0057e7; /* Change progress bar color here */
-                        background-color: #eee;
-                        border-radius: 3px;
-                    }
-                    progress::-webkit-progress-bar {
-                        background-color: #eee;
-                        border-radius: 3px;
-                    }
-                    progress::-webkit-progress-value {
-                        background-color: #0057e7;
-                        border-radius: 3px;
-                    }
+                progress {
+                    width: 430px;
+                    height: 10px;
+                    margin-top: 10px;
+                    color: #0057e7;
+                    background-color: #eee;
+                    border-radius: 3px;
+                }
+                progress::-webkit-progress-bar {
+                    background-color: #eee;
+                    border-radius: 3px;
+                }
+                progress::-webkit-progress-value {
+                    background-color: #0057e7;
+                    border-radius: 3px;
+                }
 
                 img {
                     width: 256px;
                     height: 256px;
                     margin: 10px;
                 }
-                #images img:hover {
-                    cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><defs><radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%"><stop offset="0%" style="stop-color:rgb(255,255,255);stop-opacity:0.8" /><stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:0.3" /></radialGradient></defs><circle cx="16" cy="16" r="15" fill="url(%23grad1)" stroke="gray" stroke-width="1"/></svg>'), auto;
+                input[type="text"] {
+                    width: 600px;
+                    height: 40px;
+                    font-size: 18px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
                 }
-                    input[type="text"] {
-                        width: 600px; /* Increased width for larger input box */
-                        height: 40px; /* Optional: Set height for a taller input box */
-                        font-size: 18px; /* Increased font size for better readability */
-                        padding: 10px; /* Add padding for a better user experience */
-                        border: 1px solid #ccc;
-                        box-shadow: 0px 1px 2px rgba(0,0,0,0.1);
-                        border-radius: 4px;
-                        transition: box-shadow 0.3s;
-                    }
-                
-                    input[type="text"]:focus {
-                        box-shadow: 0px 2px 4px rgba(0,0,0,0.2); 
-                        border-radius: 4px;
-                    }
-                
                 .canvas-container {
                     display: flex;
-                    align-items: start; /* Align items at the start of the flex container */
+                    align-items: start;
                     margin-bottom: 10px;
                     margin-top: 30px; 
                 }
-            
-            canvas {
+                canvas {
                     background-color: #f3f4f6;
                     border: 2px solid #cccccc;
                     border-radius: 4px;
-                    cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><circle cx="12" cy="12" r="8" fill="black" fill-opacity="0.4" />stroke="gray" stroke-width="1"/></svg>') 12 12, crosshair;
+                    cursor: crosshair;
                 }
                 .brush {
                     width: 30px;
@@ -328,21 +315,15 @@ def home():
                     display: inline-block;
                     margin: 5px;
                 }
-
-                #strokeSizeSlider {
-                    width: 200px;
-                }
-
                 .tool-button {
-                    background-color: white;   /* White background */
-                    border: 1.5px solid black;   /* Black border */
-                    color: black;              /* Black text */
-                    padding: 4px 9px;         /* Padding for better button sizing */
-                    cursor: pointer;           /* Pointer cursor on hover */
-                    margin-left: 13px;         /* Margin on the left for spacing */
-                    border-radius: 4px;        /* Rounded corners */
+                    background-color: white;
+                    border: 1.5px solid black;
+                    color: black;
+                    padding: 4px 9px;
+                    cursor: pointer;
+                    margin-left: 13px;
+                    border-radius: 4px;
                 }
-                
                 .spinner {
                     display: inline-block;
                     vertical-align: middle;
@@ -350,25 +331,20 @@ def home():
                     border-radius: 50%;
                     border-left-color: #09f;
                     animation: spin 1s ease infinite;
-                    width: 20px;  /* Smaller size */
-                    height: 20px; /* Smaller size */
+                    width: 20px;
+                    height: 20px;
                 }
-
                 #loading p {
                     display: inline-block;
                     vertical-align: middle;
                     margin: 0;
-                    padding-left: 10px; /* Space between the spinner and the text */
+                    padding-left: 10px;
                 }
-
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
                 }
-
             </style>
-
-
             <script>
                 function sendResponse() {
                     const response = document.getElementById('response').value;
@@ -384,11 +360,9 @@ def home():
                         document.querySelector('progress').value = data.progress;
                 
                         if (data.progress === 100) {
-                            // Show the reflection area when the last question is reached
                             showReflectionArea(data.responses);
                             document.getElementById('reflectionButton').style.display = 'block';
                         } else {
-                            // Hide the reflection area if not on the last question
                             document.getElementById('reflectionButton').style.display = 'none';
                         }
                     })
@@ -401,330 +375,61 @@ def home():
                     reflectionContainer.innerHTML = '';  // Clear any previous reflections
                 
                     const responseList = document.createElement('div');
-                    responseList.innerHTML = responses.split('\n').map((resp, index) => `<p>Response ${index + 1}: ${resp}</p>`).join('');
-                    
+                    responseList.innerHTML = responses.split('\n').map((resp, index) => `<p>${resp}</p>`).join('');
                     reflectionContainer.appendChild(responseList);
-                    reflectionContainer.style.display = 'block';  // Make the reflection area visible
+                    reflectionContainer.style.display = 'block';
                 }
-
-
-                function addResponseToReflection(response) {
-                    const reflectionContainer = document.getElementById('reflectionContainer');
-                    const newResponse = document.createElement('p');
-                    newResponse.textContent = response;
-                    reflectionContainer.appendChild(newResponse);
-                }
-            
-                function viewReflection() {
-                    // Scroll to the reflection area when the user clicks the reflection button
-                    document.getElementById('reflectionContainer').scrollIntoView({ behavior: 'smooth' });
-                }
-            </script>
-
-
-
-                function generateImage(event) {
-                    event.preventDefault();  // Prevent the form from submitting traditionally
-
-                    const canvas = document.getElementById('drawingCanvas');
-                    const image_data = canvas.toDataURL('image/png');
-                    const description = document.getElementById('description').value;
-
-                    document.getElementById('loading').style.display = 'block'; // Show loading indicator
-
-                    fetch('/api/process-drawing', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 'drawing': image_data, 'description': description })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        const imagesContainer = document.getElementById('images');
-                        data.image_urls.forEach(url => {
-                            const img = new Image();
-                            img.onload = function() {
-                                imagesContainer.insertBefore(img, imagesContainer.firstChild); // Insert new images at the top
-                            };
-                            img.onclick = function() { replaceCanvas(this.src); }; // use this.src, which is the correct reference
-                            img.src = '/proxy?url=' + encodeURIComponent(url); // use url from the forEach loop
-                            img.width = 256;
-                            img.height = 256;
-                        });
-                        
-                        // Display reappraisal text
-                        document.getElementById('reappraisalText').textContent = data.reappraisal_text;
-                        document.getElementById('loading').style.display = 'none'; // Hide loading indicator
-                    })
-
-                    .catch(error => {
-                        console.error('Error:', error);
-                        document.getElementById('loading').style.display = 'none'; // Hide loading indicator if there is an error
-                    });
-
-                    return false;
-                }
-
-
-                function replaceCanvas(imgSrc) {
-                    const canvas = document.getElementById('drawingCanvas');
-                    const ctx = canvas.getContext('2d');
-                    const img = new Image();
-                    img.crossOrigin = "anonymous";  // Set cross-origin to anonymous
-                    img.onload = function() {
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    };
-                    img.onerror = function() {
-                        alert('What do you think about this image?');
-                    };
-                    img.src = '/proxy?url=' + encodeURIComponent(imgSrc);
-
-                    // After setting the new image, allow the canvas to be used for new drawings or image generations
-                    painting = false;  // Reset painting state if needed
-                    ctx.beginPath();  // Clear any existing drawing paths
-                }
-
-                function viewReflection() {
-                    window.location.href = '/reflection';
-                }
-
-
-
             </script>
         </head>
         <body>
             <div class="container">
                 <div class="left">
-                <h1>Mind Palette for kids!</h1>
-                <div id="question">{{ latest_question }}</div>
-                <progress value="{{ progress_value }}" max="100"></progress>  <!-- Progress bar here -->
-                <form onsubmit="return sendResponse();">
-                    <input type="text" id="response" autocomplete="off" style="width: 430px; margin-top: 15px;" value="" placeholder="Enter your response here..." />
-                    <input type="submit" value="Respond" class="button-style" />
-                    <button id="reflectionButton" class="button-style" style="display: none;" onclick="viewReflection()">Reflection</button>
-                </form>
-                <div class="canvas-container ">
-                    <canvas id="drawingCanvas" width="500" height="330"></canvas>
-                    <button id="backButton" class="tool-button" onclick="undoLastAction()">Back</button>
-                </div>
-                <div class>
-                    <div class="brush" style="background-color: #f44336;" onclick="changeColor('#f44336')"></div>
-                    <div class="brush" style="background-color: #ff5800;" onclick="changeColor('#ff5800')"></div>
-                    <div class="brush" style="background-color: #faab09;" onclick="changeColor('#faab09')"></div>
-                    <div class="brush" style="background-color: #008744;" onclick="changeColor('#008744')"></div>
-                    <div class="brush" style="background-color: #0057e7;" onclick="changeColor('#0057e7')"></div>
-                    <div class="brush" style="background-color: #a200ff;" onclick="changeColor('#a200ff')"></div>
-                    <div class="brush" style="background-color: #ff00c1;" onclick="changeColor('#ff00c1')"></div>
-                    <div class="brush" style="background-color: #ffffff; border: 1px solid lightgray;" onclick="changeColor('#ffffff')"></div>
-                    <div class="brush" style="background-color: #646765; border: 1px solid lightgray;" onclick="changeColor('#646765')"></div>
-                    <div class="brush" style="background-color: black;" onclick="changeColor('black')"></div>
-                </div>
-                <div style="margin-top: 10px;">
-                    Brush size: <input type="range" id="strokeSizeSlider" min="15" max="30" value="2" style="width: 200px;" >
-                    <button id="brushButton" class="tool-button" onclick="selectTool('brush')">Brush</button>
-                    <button id="eraserButton" class="tool-button" onclick="selectTool('eraser')">Eraser</button>
-                </div>
-
-
-
-                <script>
-
-                    let currentTool = 'brush'; // Initially set the current tool to brush
-                    updateToolButtonStyles();
-
-                    function selectTool(tool) {
-                        currentTool = tool;
-                        if (tool === 'eraser') {
-                            ctx.globalCompositeOperation = 'destination-out';
-                            ctx.lineWidth = 20; // Eraser size
-                        } else {
-                            ctx.globalCompositeOperation = 'source-over';
-                            ctx.strokeStyle = currentColor; // Use the selected color
-                            ctx.lineWidth = document.getElementById('strokeSizeSlider').value; // Use the slider value
-                        }
-                        updateToolButtonStyles(); // Update button styles based on the selected tool
-                    }
-
-                    function updateToolButtonStyles() {
-                        // Remove active class from all buttons
-                        document.getElementById('brushButton').classList.remove('active-tool');
-                        document.getElementById('eraserButton').classList.remove('active-tool');
-                        document.getElementById('backButton').classList.remove('active-tool');
-
-                        // Add active class to the current tool button
-                        if (currentTool === 'brush') {
-                            document.getElementById('brushButton').classList.add('active-tool');
-                        } else if (currentTool === 'eraser') {
-                            document.getElementById('eraserButton').classList.add('active-tool');
-                        }
-                    }
-
-                    function undoLastAction() {
-                        if (undoStack.length > 0) {
-                            ctx.putImageData(undoStack.pop(), 0, 0);
-                            document.getElementById('backButton').classList.add('active-tool');
-                            setTimeout(() => {
-                                document.getElementById('backButton').classList.remove('active-tool');
-                            }, 500); // Remove the active class after 500 ms
-                        }
-                    }
-
-                    // Bind tool buttons
-                    document.getElementById('brushButton').addEventListener('click', () => selectTool('brush'));
-                    document.getElementById('eraserButton').addEventListener('click', () => selectTool('eraser'));
-                    document.getElementById('backButton').addEventListener('click', undoLastAction);
-
-                    
-                    const canvas = document.getElementById('drawingCanvas');
-                    const ctx = canvas.getContext('2d');
-                    let painting = false;
-                    let undoStack = [];  // Stack to keep track of canvas states for undo
-
-                    // Save the current state of the canvas
-                    function saveCanvasState() {
-                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                        undoStack.push(imageData);
-                    }
-
-                    // Draw on the canvas
-                    function draw(event) {
-                        if (!painting) return;
-                        ctx.lineWidth = document.getElementById('strokeSizeSlider').value;
-                        ctx.lineCap = 'round';
-                        ctx.lineTo(event.offsetX, event.offsetY);
-                        ctx.stroke();
-                        ctx.beginPath();
-                        ctx.moveTo(event.offsetX, event.offsetY);
-                    }
-
-                    // Start painting with mouse down
-                    function startPainting(event) {
-                        painting = true;
-                        draw(event);
-                        saveCanvasState();
-                    }
-
-                    // Stop painting
-                    function stopPainting() {
-                        painting = false;
-                        ctx.beginPath();
-                    }
-
-                    // Undo the last action
-                    function undoLastAction() {
-                        if (undoStack.length > 0) {
-                            const lastState = undoStack.pop();
-                            ctx.putImageData(lastState, 0, 0);
-                        }
-                    }
-
-                    // Set the tool used for drawing
-                    function selectTool(tool) {
-                        if (tool === 'eraser') {
-                            ctx.globalCompositeOperation = 'destination-out';
-                            ctx.lineWidth = 20;  // Make the eraser bigger
-                        } else {
-                            ctx.globalCompositeOperation = 'source-over';
-                            ctx.strokeStyle = document.getElementById('currentColor').value;
-                        }
-                    }
-
-                    // Event listeners for canvas interactions
-                    canvas.addEventListener('mousedown', startPainting);
-                    canvas.addEventListener('mousemove', draw);
-                    canvas.addEventListener('mouseup', stopPainting);
-                    canvas.addEventListener('mouseout', stopPainting);
-
-                    // Change color
-                    function changeColor(color) {
-                        ctx.strokeStyle = color;
-                        document.getElementById('currentColor').value = color;
-                    }
-
-                    // Buttons for tool selection
-                    document.getElementById('brushButton').addEventListener('click', function() { selectTool('brush'); });
-                    document.getElementById('eraserButton').addEventListener('click', function() { selectTool('eraser'); });
-                    document.getElementById('backButton').addEventListener('click', undoLastAction);
-
-                    // Set initial color
-                    let currentColor = '#000000'; // Default black
-                    ctx.strokeStyle = currentColor;
-                    ctx.lineWidth = 5;
-                </script>
-
-
+                    <h1>Mind Palette for kids!</h1>
+                    <div id="question">{{ latest_question }}</div>
+                    <progress value="{{ progress_value }}" max="100"></progress>
+                    <form onsubmit="return sendResponse();">
+                        <input type="text" id="response" autocomplete="off" placeholder="Enter your response here..." />
+                        <input type="submit" value="Respond" class="button-style" />
+                        <button id="reflectionButton" class="button-style" style="display: none;" onclick="viewReflection()">Reflection</button>
+                    </form>
+                    <div class="canvas-container">
+                        <canvas id="drawingCanvas" width="500" height="330"></canvas>
+                    </div>
                 </div>
                 <div class="divider"></div>
-                <!-- Visual Metaphor section starts here -->
                 <div class="right">
                     <h1>Visual Metaphor</h1>
                     <form onsubmit="return generateImage(event);">
-                        <label for="description" class="helper-text">
-                            I'm here to help you express your emotions. <br> 
-                            Please describe what you drew on the canvas! <br>
-                        </label><br>
-                        <input type="text" id="description" autocomplete="off" style="width: 400px; padding: 5px; margin-top: 10px;" placeholder="Describe your drawing..." />
+                        <label for="description" class="helper-text">I'm here to help you express your emotions. Please describe what you drew on the canvas!</label>
+                        <input type="text" id="description" autocomplete="off" placeholder="Describe your drawing..." />
                         <input type="submit" value="Generate" class="button-style" />
                     </form>
                     <div id="loading" style="display: none; text-align: center;">
                         <div class="spinner"></div>
                         <p>Loading...</p>
                     </div>
-                    <div id="images">
-                        <!-- Dynamically added images will go here -->
-                    </div>
-                    <div id="reappraisalText" style="padding: 20px; font-size: 18px; line-height: 1.6; color: black;">
-                        <!-- Reappraisal text will appear here -->
-                    </div>
-                    
-                    <!-- Reflection area (hidden initially) -->
-                    <div id="reflectionContainer" style="display: none; margin-top: 20px; background-color: #f0f8ff; padding: 10px; border-radius: 5px;">
-                        <h2>Your Reflections</h2>
-                        <!-- Responses will be added here dynamically -->
-                    </div>
+                    <div id="images"></div>
+                    <div id="reappraisalText" style="padding: 20px; font-size: 18px; line-height: 1.6;"></div>
+                    <div id="reflectionContainer" style="display: none; margin-top: 20px;"></div>
                 </div>
-
+            </div>
         </body>
     </html>
     """, latest_question=latest_question, progress_value=progress_value)
 
 @app.route('/reflection', methods=['GET'])
 def reflection():
-    # Retrieve the stored responses from the session
     responses = session.get('responses', [])
-    print(f"User responses: {responses}")  # Debugging statement to check responses in logs
-    # Format responses as a list of strings for display
     formatted_responses = "<br>".join([f"Response {i + 1}: {response}" for i, response in enumerate(responses)])
     return render_template_string("""
     <html>
         <head>
             <title>Your Reflections</title>
             <style>
-                body {
-                    font-family: 'Helvetica', sans-serif;
-                    padding: 20px;
-                    background-color: #f0f8ff;
-                }
-                h1 {
-                    color: #333;
-                }
-                .responses {
-                    margin-top: 20px;
-                    line-height: 1.6;
-                    background-color: #fff;
-                    padding: 20px;
-                    border-radius: 5px;
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                }
-                .button-style {
-                    margin-top: 20px;
-                    padding: 10px 20px;
-                    background-color: #0057e7;
-                    color: white;
-                    border: none;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
+                body { font-family: 'Helvetica', sans-serif; background-color: #f0f8ff; padding: 20px; }
+                h1 { color: #333; }
+                .responses { margin-top: 20px; background-color: #fff; padding: 20px; border-radius: 5px; }
+                .button-style { margin-top: 20px; background-color: #0057e7; color: white; padding: 10px; border-radius: 5px; cursor: pointer; }
             </style>
         </head>
         <body>
@@ -737,4 +442,3 @@ def reflection():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
-
