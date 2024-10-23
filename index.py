@@ -382,7 +382,10 @@ def home():
                         document.getElementById('question').textContent = data.question;
                         document.getElementById('response').value = '';
                         document.querySelector('progress').value = data.progress;
-                
+            
+                        // Add the response to the reflection area
+                        addResponseToReflection(response);
+            
                         if (data.progress === 100) {
                             // Show the reflection button when the last question is reached
                             document.getElementById('reflectionButton').style.display = 'block';
@@ -394,6 +397,19 @@ def home():
                     .catch(error => console.error('Error:', error));
                     return false;
                 }
+
+                function addResponseToReflection(response) {
+                    const reflectionContainer = document.getElementById('reflectionContainer');
+                    const newResponse = document.createElement('p');
+                    newResponse.textContent = response;
+                    reflectionContainer.appendChild(newResponse);
+                }
+            
+                function viewReflection() {
+                    // Scroll to the reflection area when the user clicks the reflection button
+                    document.getElementById('reflectionContainer').scrollIntoView({ behavior: 'smooth' });
+                }
+            </script>
 
 
 
@@ -651,9 +667,13 @@ def home():
                     <div id="reappraisalText" style="padding: 20px; font-size: 18px; line-height: 1.6; color: black;">
                         <!-- Reappraisal text will appear here -->
                     </div>
+                
+                    <!-- Reflection area where user responses will be displayed -->
+                    <div id="reflectionContainer" style="margin-top: 20px; background-color: #f0f8ff; padding: 10px; border-radius: 5px;">
+                        <h2>Your Reflections</h2>
+                        <!-- Responses will be added here dynamically -->
+                    </div>
                 </div>
-
-
         </body>
     </html>
     """, latest_question=latest_question, progress_value=progress_value)
