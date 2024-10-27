@@ -180,36 +180,35 @@ def api_question():
     session['history'].append(('You', user_response))
     session['responses'].append(user_response)
 
-if session['question_number'] <= 6:
-    question_text = generate_art_therapy_question(
-        app.secret_key, session['question_number'], session['history']
-    )
-    session['history'].append(('Therapist', question_text))
-    
-    # Store the texture response when question number is 5
-    if session['question_number'] == 5:
-        session['texture'] = user_response  # Save response to use as texture
+    if session['question_number'] <= 6:
+        question_text = generate_art_therapy_question(
+            app.secret_key, session['question_number'], session['history']
+        )
+        session['history'].append(('Therapist', question_text))
 
-    session['question_number'] += 1
-    progress = (session['question_number'] - 1) / 6 * 100
-    return jsonify({
-        'question': question_text,
-        'progress': progress,
-        'responses': session['responses'],
-        'restart': False
-    })
-else:
-    # Send all responses back when it's the last question
-    all_responses = "\n".join([f"Response {i+1}: {response}" for i, response in enumerate(session['responses'])])
-    final_advice = generate_reappraisal_text(session['responses'][-1])
-    session.clear()
-    return jsonify({
-        'question': 'Let\'s restart!',
-        'progress': 100,
-        'responses': all_responses + f"\nFinal Advice: {final_advice}",
-        'restart': True
-    })
+        # Store the texture response when question number is 5
+        if session['question_number'] == 5:
+            session['texture'] = user_response  # Save response to use as texture
 
+        session['question_number'] += 1
+        progress = (session['question_number'] - 1) / 6 * 100
+        return jsonify({
+            'question': question_text,
+            'progress': progress,
+            'responses': session['responses'],
+            'restart': False
+        })
+    else:
+        # Send all responses back when it's the last question
+        all_responses = "\n".join([f"Response {i+1}: {response}" for i, response in enumerate(session['responses'])])
+        final_advice = generate_reappraisal_text(session['responses'][-1])
+        session.clear()
+        return jsonify({
+            'question': 'Let\'s restart!',
+            'progress': 100,
+            'responses': all_responses + f"\nFinal Advice: {final_advice}",
+            'restart': True
+        })
         
 
 @app.route('/', methods=['GET'])
