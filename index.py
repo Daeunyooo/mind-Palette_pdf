@@ -74,14 +74,14 @@ def generate_prompt(description, colors=None, texture="smooth"):
     if colors:
         color_description = ', '.join(colors)
         prompt = (
-            f"Create a purely visual artistic oil painting drawing using a '{texture}' texture and the colors {color_description}, "
+            f"Create a impressionistic or naturalistic oil painting drawing using a '{texture}' texture and the colors {color_description}, "
             f"that reimagines '{description}' in a positive manner. For example, transforming a gloomy cloud "
             f"into a scene with a rainbow or stars or sun. The image must focus entirely on visual elements without any text, "
             f"letters, or numbers."
         )
     else:
         prompt = (
-            f"Create a purely visual artistic oil painting drawing with a '{texture}' texture that reimagines '{description}' in a positive manner. "
+            f"Create a impressionistic or naturalistic oil painting drawing with a '{texture}' texture that reimagines '{description}' in a positive manner. "
             f"For example, transforming a gloomy cloud into a scene with a rainbow. The image must focus entirely "
             f"on visual elements without any text, letters, or numbers."
         )
@@ -91,7 +91,10 @@ def generate_reappraisal_text(description):
     try:
         response = openai.Completion.create(
             engine="gpt-3.5-turbo-instruct",
-            prompt=f"Generate a short positive cognitive reappraisal advice for a child's description, less than three sentences: {description}",
+            prompt = (
+                f"Provide a short, positive piece of cognitive reappraisal advice that helps a child view their described situation in a more hopeful and optimistic way. "
+                f"Make it simple and encouraging, less than three sentences. Description: {description}"
+            )
             max_tokens=80
         )
         if 'choices' in response and len(response.choices) > 0:
