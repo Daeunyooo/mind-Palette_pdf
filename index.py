@@ -74,16 +74,16 @@ def generate_prompt(description, colors=None, texture="smooth"):
     if colors:
         color_description = ', '.join(colors)
         prompt = (
-            f"Create an impressionistic or naturalistic oil painting using a '{texture}' texture and the colors {color_description}. "
-            f"Transform the drawing based on the theme '{description}' into a scene that is happy, comforting, or uplifting, such as "
-            f"turning a cloudy sky into a rainbow-filled sky or a stormy sea into a calm, sunny beach or a scene with full of fantastic stars. "
-            f"The artwork should be purely visual, with no text, letters, or numbers."
+            f"Create a purely visual artistic oil painting drawing using the colors {color_description} and using a '{texture}', "
+            f"that reimagines '{description}' in a positive manner. For example, transforming a gloomy cloud "
+            f"into a scene with a rainbow or stars or sunshines. The image must focus entirely on visual elements without any text, "
+            f"letters, or numbers."
         )
     else:
         prompt = (
-            f"Create an impressionistic or naturalistic oil painting with a '{texture}' texture. "
-            f"Reimagine the theme '{description}' in a way that feels comforting and joyful, perhaps by introducing bright colors or "
-            f"elements like sunshine, rainbows, or stars. The image should be entirely visual with no text, letters, or numbers."
+            f"Create a purely visual artistic oil painting drawing using a '{texture}' that reimagines '{description}' in a positive manner. "
+            f"For example, transforming a gloomy cloud into a scene with a rainbow or stars or sunshines. The image must focus entirely "
+            f"on visual elements without any text, letters, or numbers."
         )
     return prompt
 
