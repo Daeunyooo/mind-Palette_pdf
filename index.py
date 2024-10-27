@@ -74,35 +74,36 @@ def generate_prompt(description, colors=None, texture="smooth"):
     if colors:
         color_description = ', '.join(colors)
         prompt = (
-            f"Create a impressionistic or naturalistic oil painting drawing using a '{texture}' texture and the colors {color_description}, "
-            f"that reimagines '{description}' in a positive manner. For example, transforming a gloomy cloud "
-            f"into a scene with a rainbow or stars or sun. The image must focus entirely on visual elements without any text, "
-            f"letters, or numbers."
+            f"Create an impressionistic or naturalistic oil painting using a '{texture}' texture and the colors {color_description}. "
+            f"Transform the drawing based on the theme '{description}' into a scene that is happy, comforting, or uplifting, such as "
+            f"turning a cloudy sky into a rainbow-filled sky or a stormy sea into a calm, sunny beach or a scene with full of fantastic stars. "
+            f"The artwork should be purely visual, with no text, letters, or numbers."
         )
     else:
         prompt = (
-            f"Create a impressionistic or naturalistic oil painting drawing with a '{texture}' texture that reimagines '{description}' in a positive manner. "
-            f"For example, transforming a gloomy cloud into a scene with a rainbow. The image must focus entirely "
-            f"on visual elements without any text, letters, or numbers."
+            f"Create an impressionistic or naturalistic oil painting with a '{texture}' texture. "
+            f"Reimagine the theme '{description}' in a way that feels comforting and joyful, perhaps by introducing bright colors or "
+            f"elements like sunshine, rainbows, or stars. The image should be entirely visual with no text, letters, or numbers."
         )
     return prompt
+
 
 def generate_reappraisal_text(description):
     try:
         response = openai.Completion.create(
             engine="gpt-3.5-turbo-instruct",
             prompt=(
-                f"Imagine a child has described an emotion related to their life or feelings, "
-                f"not the drawing itself. Provide positive, encouraging advice that can help the child "
-                f"reframe this emotion in a more hopeful way. Be empathetic and friendly, with simple language."
-                f" Focus on the emotion. Description of the emotion: {description}"
+                f"A child has described a feeling in this way: '{description}'. "
+                f"Please offer a single piece of positive reappraisal advice in response, "
+                f"beginning with a new, complete sentence that helps the child view the emotion in a brighter, hopeful way. "
+                f"Keep the language simple and friendly, and focus on encouragement and optimism."
             ),
             max_tokens=80
         )
         if 'choices' in response and len(response.choices) > 0:
             return response.choices[0].text.strip()
         else:
-            return "Failed to generate meaningful output. Please refine the prompt."
+            return "Could not generate a response. Please try again."
     except Exception as e:
         print(f"Error generating reappraisal text: {str(e)}")
         return "Could not generate reappraisal text."
