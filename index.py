@@ -92,8 +92,10 @@ def generate_reappraisal_text(description):
         response = openai.Completion.create(
             engine="gpt-3.5-turbo-instruct",
             prompt=(
-                f"Provide a short, positive piece of cognitive reappraisal advice that helps a child view their described situation in a more hopeful and optimistic way. "
-                f"Make it simple and encouraging, less than three sentences. Description: {description}"
+                f"Imagine a child has described an emotion related to their life or feelings, "
+                f"not the drawing itself. Provide positive, encouraging advice that can help the child "
+                f"reframe this emotion in a more hopeful way. Be empathetic and friendly, with simple language."
+                f" Focus on the emotion. Description of the emotion: {description}"
             ),
             max_tokens=80
         )
