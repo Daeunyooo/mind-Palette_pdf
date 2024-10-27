@@ -512,6 +512,13 @@ def home():
                     <button id="brushButton" class="tool-button" onclick="selectTool('brush')">Brush</button>
                     <button id="eraserButton" class="tool-button" onclick="selectTool('eraser')">Eraser</button>
                 </div>
+                <div style="margin-top: 10px;">
+                    <div class="brush" style="background-image: url('/static/silk.png'); background-size: cover;" onclick="selectTexture('silk')"></div>
+                    <div class="brush" style="background-image: url('/static/cotton.png'); background-size: cover;" onclick="selectTexture('cotton')"></div>
+                    <div class="brush" style="background-image: url('/static/rough.png'); background-size: cover;" onclick="selectTexture('rough')"></div>
+                    <div class="brush" style="background-image: url('/static/metal.png'); background-size: cover;" onclick="selectTexture('metal')"></div>
+                </div>
+
 
 
 
@@ -531,6 +538,24 @@ def home():
                             ctx.lineWidth = document.getElementById('strokeSizeSlider').value; // Use the slider value
                         }
                         updateToolButtonStyles(); // Update button styles based on the selected tool
+                    }
+
+                    let currentTexture = null; // Stores the current texture pattern
+
+                    function selectTexture(textureType) {
+                        const textureImages = {
+                            silk: '/static/silk.png',
+                            cotton: '/static/cotton.png',
+                            rough: '/static/rough.png',
+                            metal: '/static/metal.png'
+                        };
+                    
+                        const textureImage = new Image();
+                        textureImage.src = textureImages[textureType];
+                        textureImage.onload = () => {
+                            const pattern = ctx.createPattern(textureImage, 'repeat');
+                            currentTexture = pattern;
+                        };
                     }
 
                     function updateToolButtonStyles() {
@@ -574,11 +599,14 @@ def home():
                         undoStack.push(imageData);
                     }
 
-                    // Draw on the canvas
+                    // Modify the drawing function to apply the texture if selected
                     function draw(event) {
                         if (!painting) return;
+                        
                         ctx.lineWidth = document.getElementById('strokeSizeSlider').value;
                         ctx.lineCap = 'round';
+                        ctx.strokeStyle = currentTexture || currentColor; // Use texture if set; otherwise, use color
+                    
                         ctx.lineTo(event.offsetX, event.offsetY);
                         ctx.stroke();
                         ctx.beginPath();
