@@ -91,10 +91,10 @@ def generate_reappraisal_text(description):
     try:
         response = openai.Completion.create(
             engine="gpt-3.5-turbo-instruct",
-            prompt = (
+            prompt=(
                 f"Provide a short, positive piece of cognitive reappraisal advice that helps a child view their described situation in a more hopeful and optimistic way. "
                 f"Make it simple and encouraging, less than three sentences. Description: {description}"
-            )
+            ),
             max_tokens=80
         )
         if 'choices' in response and len(response.choices) > 0:
