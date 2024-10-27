@@ -73,7 +73,7 @@ def generate_prompt(description, colors=None):
         prompt = (
             f"Create a purely visual artistic oil painting drawing using the colors {color_description}, "
             f"that reimagines '{description}' in a positive manner. For example, transforming a gloomy cloud "
-            f"into a scene with a rainbow. The image must focus entirely on visual elements without any text, "
+            f"into a scene with a rainbow or stars or sun. The image must focus entirely on visual elements without any text, "
             f"letters, or numbers."
         )
     else:
@@ -136,7 +136,7 @@ def generate_art_therapy_question(api_key, question_number, session_history):
         "Based on the previous responses, generate a short question that explores the context, such as asking what triggered this emotion or describing the situation or thought that led to these feelings. Users are kids, so please use easy and friendly expressions.",
         "Based on the previous responses, generate a short question that asks the user to describe and visualize their emotion as an 'abstract shape or symbol' to create their own metaphor for their mind. Users are kids, so please use easy and friendly expressions, and provide some metaphors or examples.",
         "Based on the previous responses, generate a short question that asks the user to describe and visualize their emotions as a 'texture' to create their own metaphor for their mind. Users are kids, so please use easy and friendly expressions, and provide some metaphors or examples.",
-        "Based on the previous responses, provide personalized cognitive reappraisal advice to help think about the situation that user described in the previous response in a more positive way. Or, if user's previous response was already positive, please assist user to think about the good things they might learn from this experience. Please incorporating a playful and engaging approach consistent with CBT theory. Make sure the advice is directly relevant to the emotions and situations described by the child, using examples or activities that are fun and easy for kids to understand. Also, make this less than three sentences."
+        "Based on the previous responses, provide a summary of user's response. Then, provide a personalized cognitive reappraisal advice to help think about the situation that user described in the previous response in a more positive way. Or, if user's previous response was already positive, please assist user to think about the good things they might learn from this experience. Please incorporating a playful and engaging approach consistent with CBT theory. Make sure the advice is directly relevant to the emotions and situations described by the child, using examples or activities that are fun and easy for kids to understand. Also, make this less than four sentences."
     ]
     
     user_responses = " ".join([resp for who, resp in session_history if who == 'You'])
@@ -147,7 +147,7 @@ def generate_art_therapy_question(api_key, question_number, session_history):
         response = openai.Completion.create(
             engine="gpt-3.5-turbo-instruct",
             prompt=prompt_text,
-            max_tokens=150,
+            max_tokens=180,
             n=1,
             temperature=0.7
         )
