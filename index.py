@@ -38,7 +38,9 @@ def api_process_drawing():
         data = request.get_json()
         drawing_data = data['drawing']
         text_description = data['description']
-        texture_description = data['texture']  # Capture texture description
+        
+        # Assume that texture is stored in session when user answers question 5
+        texture = session.get('texture', 'default texture')
 
         # Decode image from base64
         image_data = base64.b64decode(drawing_data.split(',')[1])
@@ -50,7 +52,7 @@ def api_process_drawing():
         used_colors_names = [BRUSH_COLORS[hex_color] for hex_color in raw_colors_hex if hex_color in BRUSH_COLORS]
 
         # Generate prompt using colors, description, and texture
-        prompt = generate_prompt(text_description, texture_description, used_colors_names)
+        prompt = generate_prompt(text_description, used_colors_names, texture)
         print(f"Generated prompt for DALL-E: {prompt}")
 
         # Generate image using the DALL-E API
@@ -66,20 +68,22 @@ def api_process_drawing():
     except Exception as e:
         print(f"Error processing drawing: {str(e)}")
         return jsonify({'error': str(e)}), 500
+        
 
-def generate_prompt(description, texture, colors=None):
-    # Modify prompt to include texture
+def generate_prompt(description, colors=None, texture="smooth"):
     if colors:
         color_description = ', '.join(colors)
         prompt = (
-            f"Create an artistic painting using the colors {color_description}, with a texture resembling {texture}, "
-            f"that reimagines '{description}' in a positive way. Focus entirely on visual elements without text, "
+            f"Create a purely visual artistic oil painting drawing using a '{texture}' texture and the colors {color_description}, "
+            f"that reimagines '{description}' in a positive manner. For example, transforming a gloomy cloud "
+            f"into a scene with a rainbow or stars or sun. The image must focus entirely on visual elements without any text, "
             f"letters, or numbers."
         )
     else:
         prompt = (
-            f"Create an artistic painting with a texture resembling {texture} that reimagines '{description}' in a positive way. "
-            f"Focus entirely on visual elements without text, letters, or numbers."
+            f"Create a purely visual artistic oil painting drawing with a '{texture}' texture that reimagines '{description}' in a positive manner. "
+            f"For example, transforming a gloomy cloud into a scene with a rainbow. The image must focus entirely "
+            f"on visual elements without any text, letters, or numbers."
         )
     return prompt
 
@@ -176,30 +180,36 @@ def api_question():
     session['history'].append(('You', user_response))
     session['responses'].append(user_response)
 
-    if session['question_number'] <= 6:
-        question_text = generate_art_therapy_question(
-            app.secret_key, session['question_number'], session['history']
-        )
-        session['history'].append(('Therapist', question_text))
-        session['question_number'] += 1
-        progress = (session['question_number'] - 1) / 6 * 100
-        return jsonify({
-            'question': question_text,
-            'progress': progress,
-            'responses': session['responses'],
-            'restart': False
-        })
-    else:
-        # Send all responses back when it's the last question
-        all_responses = "\n".join([f"Response {i+1}: {response}" for i, response in enumerate(session['responses'])])
-        final_advice = generate_reappraisal_text(session['responses'][-1])
-        session.clear()
-        return jsonify({
-            'question': 'Let\'s restart!',
-            'progress': 100,
-            'responses': all_responses + f"\nFinal Advice: {final_advice}",
-            'restart': True
-        })
+if session['question_number'] <= 6:
+    question_text = generate_art_therapy_question(
+        app.secret_key, session['question_number'], session['history']
+    )
+    session['history'].append(('Therapist', question_text))
+    
+    # Store the texture response when question number is 5
+    if session['question_number'] == 5:
+        session['texture'] = user_response  # Save response to use as texture
+
+    session['question_number'] += 1
+    progress = (session['question_number'] - 1) / 6 * 100
+    return jsonify({
+        'question': question_text,
+        'progress': progress,
+        'responses': session['responses'],
+        'restart': False
+    })
+else:
+    # Send all responses back when it's the last question
+    all_responses = "\n".join([f"Response {i+1}: {response}" for i, response in enumerate(session['responses'])])
+    final_advice = generate_reappraisal_text(session['responses'][-1])
+    session.clear()
+    return jsonify({
+        'question': 'Let\'s restart!',
+        'progress': 100,
+        'responses': all_responses + f"\nFinal Advice: {final_advice}",
+        'restart': True
+    })
+
         
 
 @app.route('/', methods=['GET'])
@@ -428,14 +438,13 @@ def home():
                     const canvas = document.getElementById('drawingCanvas');
                     const image_data = canvas.toDataURL('image/png');
                     const description = document.getElementById('description').value;
-                    const texture = document.getElementById('texture').value;
 
                     document.getElementById('loading').style.display = 'block'; // Show loading indicator
 
                     fetch('/api/process-drawing', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 'description': description, 'texture': texture })
+                        body: JSON.stringify({ 'drawing': image_data, 'description': description })
                     })
                     .then(res => res.json())
                     .then(data => {
@@ -652,11 +661,12 @@ def home():
                 <div class="right">
                     <h1>Visual Metaphor</h1>
                     <form onsubmit="return generateImage(event);">
-                        <label for="description">Describe your drawing:</label>
-                        <input type="text" id="description" autocomplete="off" placeholder="Describe your drawing..." />
-                        <label for="texture">Describe the texture (e.g., smooth, rough, cloudy):</label>
-                        <input type="text" id="texture" autocomplete="off" placeholder="Describe the texture..." />
-                        <input type="submit" value="Generate" />
+                        <label for="description" class="helper-text">
+                            I'm here to help you express your emotions. <br> 
+                            Please describe what you drew on the canvas! <br>
+                        </label><br>
+                        <input type="text" id="description" autocomplete="off" style="width: 400px; padding: 5px; margin-top: 10px;" placeholder="Describe your drawing..." />
+                        <input type="submit" value="Generate" class="button-style" />
                     </form>
                     <!-- Loading indicator placed right below the form -->
                     <div id="loading" style="display: none; text-align: center;">
