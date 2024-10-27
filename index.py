@@ -38,6 +38,7 @@ def api_process_drawing():
         data = request.get_json()
         drawing_data = data['drawing']
         text_description = data['description']
+        texture_description = data['texture']  # Capture texture description
 
         # Decode image from base64
         image_data = base64.b64decode(drawing_data.split(',')[1])
@@ -48,8 +49,8 @@ def api_process_drawing():
         raw_colors_hex = {f"#{r:02x}{g:02x}{b:02x}" for r, g, b in raw_colors}
         used_colors_names = [BRUSH_COLORS[hex_color] for hex_color in raw_colors_hex if hex_color in BRUSH_COLORS]
 
-        # Generate prompt using colors and description
-        prompt = generate_prompt(text_description, used_colors_names)
+        # Generate prompt using colors, description, and texture
+        prompt = generate_prompt(text_description, texture_description, used_colors_names)
         print(f"Generated prompt for DALL-E: {prompt}")
 
         # Generate image using the DALL-E API
@@ -66,21 +67,19 @@ def api_process_drawing():
         print(f"Error processing drawing: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-
-def generate_prompt(description, colors=None):
+def generate_prompt(description, texture, colors=None):
+    # Modify prompt to include texture
     if colors:
         color_description = ', '.join(colors)
         prompt = (
-            f"Create a purely visual artistic oil painting drawing using the colors {color_description}, "
-            f"that reimagines '{description}' in a positive manner. For example, transforming a gloomy cloud "
-            f"into a scene with a rainbow or stars or sun. The image must focus entirely on visual elements without any text, "
+            f"Create an artistic painting using the colors {color_description}, with a texture resembling {texture}, "
+            f"that reimagines '{description}' in a positive way. Focus entirely on visual elements without text, "
             f"letters, or numbers."
         )
     else:
         prompt = (
-            f"Create a purely visual artistic oil painting drawing that reimagines '{description}' in a positive manner. "
-            f"For example, transforming a gloomy cloud into a scene with a rainbow. The image must focus entirely "
-            f"on visual elements without any text, letters, or numbers."
+            f"Create an artistic painting with a texture resembling {texture} that reimagines '{description}' in a positive way. "
+            f"Focus entirely on visual elements without text, letters, or numbers."
         )
     return prompt
 
@@ -429,13 +428,14 @@ def home():
                     const canvas = document.getElementById('drawingCanvas');
                     const image_data = canvas.toDataURL('image/png');
                     const description = document.getElementById('description').value;
+                    const texture = document.getElementById('texture').value;
 
                     document.getElementById('loading').style.display = 'block'; // Show loading indicator
 
                     fetch('/api/process-drawing', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 'drawing': image_data, 'description': description })
+                        body: JSON.stringify({ 'description': description, 'texture': texture })
                     })
                     .then(res => res.json())
                     .then(data => {
@@ -652,12 +652,11 @@ def home():
                 <div class="right">
                     <h1>Visual Metaphor</h1>
                     <form onsubmit="return generateImage(event);">
-                        <label for="description" class="helper-text">
-                            I'm here to help you express your emotions. <br> 
-                            Please describe what you drew on the canvas! <br>
-                        </label><br>
-                        <input type="text" id="description" autocomplete="off" style="width: 400px; padding: 5px; margin-top: 10px;" placeholder="Describe your drawing..." />
-                        <input type="submit" value="Generate" class="button-style" />
+                        <label for="description">Describe your drawing:</label>
+                        <input type="text" id="description" autocomplete="off" placeholder="Describe your drawing..." />
+                        <label for="texture">Describe the texture (e.g., smooth, rough, cloudy):</label>
+                        <input type="text" id="texture" autocomplete="off" placeholder="Describe the texture..." />
+                        <input type="submit" value="Generate" />
                     </form>
                     <!-- Loading indicator placed right below the form -->
                     <div id="loading" style="display: none; text-align: center;">
