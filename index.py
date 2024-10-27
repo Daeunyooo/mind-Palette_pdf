@@ -542,6 +542,7 @@ def home():
 
                     let currentTexture = null; // Stores the current texture pattern
 
+                    // Function to select texture and apply to the brush
                     function selectTexture(textureType) {
                         const textureImages = {
                             silk: '/static/silk.png',
@@ -553,8 +554,7 @@ def home():
                         const textureImage = new Image();
                         textureImage.src = textureImages[textureType];
                         textureImage.onload = () => {
-                            const pattern = ctx.createPattern(textureImage, 'repeat');
-                            currentTexture = pattern;
+                            currentTexture = ctx.createPattern(textureImage, 'repeat');
                         };
                     }
 
@@ -600,12 +600,12 @@ def home():
                     }
 
                     // Modify the drawing function to apply the texture if selected
-                    function draw(event) {
+                   function draw(event) {
                         if (!painting) return;
                         
                         ctx.lineWidth = document.getElementById('strokeSizeSlider').value;
                         ctx.lineCap = 'round';
-                        ctx.strokeStyle = currentTexture || currentColor; // Use texture if set; otherwise, use color
+                        ctx.strokeStyle = currentTexture || currentColor; // Use texture if available
                     
                         ctx.lineTo(event.offsetX, event.offsetY);
                         ctx.stroke();
@@ -651,10 +651,12 @@ def home():
                     canvas.addEventListener('mouseup', stopPainting);
                     canvas.addEventListener('mouseout', stopPainting);
 
-                    // Change color
+                    // Function to change color (if texture is not being used)
                     function changeColor(color) {
-                        ctx.strokeStyle = color;
-                        document.getElementById('currentColor').value = color;
+                        currentColor = color;
+                        if (!currentTexture) {
+                            ctx.strokeStyle = currentColor;
+                        }
                     }
 
                     // Buttons for tool selection
